@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: raptric
+          POSTGRES_PASSWORD: raptric_ci_pw
+          POSTGRES_DB: raptric
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://raptric:raptric_ci_pw@localhost:5432/raptric
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # This exists because npm's arborist has a real bug with a couple of
+      # this project's transitive deps, not because of anything CI-specific
+      # (the same flag is documented in SETUP.md for local installs).
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Seed database
+        run: npx prisma db seed
+
+      # Runs the real Next.js typecheck + production build, and separately
+      # runs `tsc --noEmit` so a type error can't slip through hidden by
+      # Next's build cache on a second run.
+      - name: Build
+        run: npm run build
+
+      - name: Typecheck
+        run: npx tsc --noEmit
