@@ -4,13 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Heart, Scale } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { PriceBlock } from "./PriceBlock";
 import { Chip } from "./Chip";
 import { Button } from "./Button";
-import { springHover } from "@/lib/motion";
+import { springHover, useReducedMotion } from "@/lib/motion";
 import { addToCartAction } from "@/lib/actions/cart";
 import { toggleCompare, getCompareIds } from "@/lib/compareTray";
 

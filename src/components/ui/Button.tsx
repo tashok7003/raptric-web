@@ -1,10 +1,10 @@
 "use client";
 
 import { forwardRef } from "react";
-import { motion, useReducedMotion, type HTMLMotionProps } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { pressScale, springTap, pulseTransition } from "@/lib/motion";
+import { pressScale, springTap, pulseTransition, useReducedMotion } from "@/lib/motion";
 
 type Variant = "primary" | "secondary" | "ghost";
 

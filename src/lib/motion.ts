@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { Transition } from "framer-motion";
 
 /**
@@ -89,4 +90,29 @@ export const pageEnter = {
  */
 export function shouldDismissSheet(offsetY: number, velocityY: number) {
   return offsetY > 120 || velocityY > 800;
+}
+
+/**
+ * A hydration-safe replacement for framer-motion's own useReducedMotion():
+ * that hook reads window.matchMedia synchronously during render, which is
+ * always `false` on the server (no window) but can already be `true` on
+ * the client's first render. Any component that branches its structure or
+ * gesture props (whileTap, whileHover, ...) on that value hits a real
+ * SSR/CSR hydration mismatch whenever the visitor's OS/browser prefers
+ * reduced motion. Deferring detection to an effect keeps the server and
+ * first client render identical; the preference then applies a moment
+ * after mount, same as any other client-only state update.
+ */
+export function useReducedMotion(): boolean {
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduceMotion(mql.matches);
+    const onChange = () => setReduceMotion(mql.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
+  return reduceMotion;
 }

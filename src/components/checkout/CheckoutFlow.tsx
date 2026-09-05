@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { springStandard } from "@/lib/motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { springStandard, useReducedMotion } from "@/lib/motion";
 import { StepTracker } from "@/components/ui/StepTracker";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";

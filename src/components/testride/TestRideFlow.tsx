@@ -1,14 +1,14 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { StatusCard } from "@/components/ui/StatusCard";
 import { StepTracker } from "@/components/ui/StepTracker";
 import { bookTestRideAction } from "@/lib/actions/testRide";
-import { springStandard } from "@/lib/motion";
+import { springStandard, useReducedMotion } from "@/lib/motion";
 
 type Step = "bike" | "store" | "slot" | "contact" | "done";
 

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useId } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Minus, Link2 } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { springGentle, fadeEnterExit } from "@/lib/motion";
+import { springGentle, fadeEnterExit, useReducedMotion } from "@/lib/motion";
 
 interface AccordionItem {
   id: string;

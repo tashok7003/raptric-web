@@ -2,12 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
 import { StatusCard } from "@/components/ui/StatusCard";
 import { requestOtpAction, verifyOtpAction } from "@/lib/actions/auth";
-import { springStandard } from "@/lib/motion";
+import { springStandard, useReducedMotion } from "@/lib/motion";
 
 type Step = "phone" | "otp";
 

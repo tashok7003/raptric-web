@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useFocusTrap } from "@/lib/useFocusTrap";
-import { springSheet, shouldDismissSheet } from "@/lib/motion";
+import { springSheet, shouldDismissSheet, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
 interface DrawerProps {

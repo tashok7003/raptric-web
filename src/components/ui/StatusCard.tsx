@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
-import { springStandard } from "@/lib/motion";
+import { springStandard, useReducedMotion } from "@/lib/motion";
 
 interface StatusCardProps {
   tone: "success" | "caution" | "danger" | "info";

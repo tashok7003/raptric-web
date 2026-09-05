@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Search, ShoppingCart, User, Menu, ChevronDown } from "lucide-react";
 import { NAV_ITEMS, SHOP_DROPDOWN, SUPPORT_DROPDOWN } from "@/lib/siteConfig";
 import type { ResolvedNavItem } from "@/lib/nav";
 import { Drawer } from "@/components/ui/Drawer";
-import { springGentle } from "@/lib/motion";
+import { springGentle, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
 interface SiteHeaderProps {

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { setConsentAction } from "@/lib/actions/consent";
-import { springSheet } from "@/lib/motion";
+import { springSheet, useReducedMotion } from "@/lib/motion";
 
 // 11e — DPDP consent gate. 8d's analytics can't fire before this
 // exists (12c), so the banner is the first thing that has to ship, not

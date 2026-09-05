@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { getCompareIds } from "@/lib/compareTray";
-import { springSheet } from "@/lib/motion";
+import { springSheet, useReducedMotion } from "@/lib/motion";
 
 interface CompareTrayProps {
   names: Record<string, string>; // id -> display name, for the ones known on this page
