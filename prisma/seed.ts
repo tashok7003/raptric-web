@@ -110,17 +110,29 @@ async function main() {
     },
   });
 
+  // Earlier seed runs created a fictional "JBC Pune" store under a
+  // different slug; clean it up so it doesn't linger alongside the real
+  // flagship below. Safe as long as nothing was ordered/booked against
+  // it in this dev DB — ignored if that's not the case.
+  try {
+    await db.store.delete({ where: { slug: "jbc-pune" } });
+  } catch {
+    // either never seeded, or has dependent rows — leave it alone
+  }
+
+  // The real flagship store (raptric.in) — RAPTRIC's own, distinct from
+  // the 20+ retail partners the BD pipeline (Retailer model) onboards.
   await db.store.upsert({
-    where: { slug: "jbc-pune" },
+    where: { slug: "raptric-banashankari" },
     update: {},
     create: {
-      name: "JBC Pune",
-      slug: "jbc-pune",
-      address: "Jangli Maharaj Road, Pune",
-      city: "Pune",
-      pincode: "411001",
-      hoursJson: JSON.stringify({ "mon-sun": "10:00-20:00" }),
-      phone: "+91 88888 00001",
+      name: "RAPTRIC Banashankari",
+      slug: "raptric-banashankari",
+      address: "367, 10th Main, Vidyapeeta Main Road, Banashankari 3rd Stage",
+      city: "Bengaluru",
+      pincode: "560085",
+      hoursJson: JSON.stringify({ "mon-sun": "10:30-20:30" }),
+      phone: "+91 93802 76355",
       servicesJson: JSON.stringify(["test-ride", "service", "collect-in-store"]),
     },
   });
@@ -139,12 +151,76 @@ async function main() {
     });
   }
 
+  // Earlier seed runs used .create() with no natural key, so re-seeding
+  // duplicated rows every time. Clearing first makes this idempotent —
+  // safe since FaqItem is pure seed/CMS content, never user data.
+  await db.faqItem.deleteMany({});
+
+  // Real questions/answers from raptric.in's own FAQ, adapted where the
+  // wording assumed a single store (this app models a growing network).
   const faqs = [
-    { question: "How does no-cost EMI work?", answer: "Bajaj Finserv splits the price over 6/12/18/24 months at zero extra cost.", category: "EMI" },
-    { question: "What does the 2-year warranty cover?", answer: "Frame 2 years, motor 18 months, battery 12 months.", category: "Warranty" },
+    {
+      id: "faq-emi",
+      question: "How does no-cost EMI work?",
+      answer: "Bajaj Finserv splits the price over 6/12/18/24 months at zero extra cost — pick a tenure at checkout.",
+      category: "Payments",
+    },
+    {
+      id: "faq-payment-modes",
+      question: "What modes of payment are accepted?",
+      answer: "UPI, credit/debit cards, and netbanking online. Cash is accepted in-store only.",
+      category: "Payments",
+    },
+    {
+      id: "faq-cod",
+      question: "Do you have an option for cash-on-delivery (COD)?",
+      answer: "We don't support COD. Pay online via UPI, card, or netbanking, or pay cash at a store.",
+      category: "Payments",
+    },
+    {
+      id: "faq-payment-failed",
+      question: "My payment was deducted but the order shows failed — what do I do?",
+      answer: "Don't worry — call our care line and we'll confirm the payment status. If we haven't received it, the amount is usually reversed by your bank automatically.",
+      category: "Payments",
+    },
+    {
+      id: "faq-warranty",
+      question: "What does the warranty cover?",
+      answer: "Frame 5 years, battery and hub motor 2 years, other electronics 6 months — manufacturing defects only, repaired or replaced at our discretion.",
+      category: "Warranty",
+    },
+    {
+      id: "faq-servicing",
+      question: "How often does a RAPTRIC need servicing?",
+      answer: "Our bikes are largely maintenance-free, but we recommend a health check at least once every 3-4 months.",
+      category: "Service",
+    },
+    {
+      id: "faq-assembly",
+      question: "Does the bike come fully assembled?",
+      answer: "It arrives 90% assembled in a well-packaged carton. A short video walks you through the last steps — usually under 30 minutes if done by someone experienced.",
+      category: "Assembly",
+    },
+    {
+      id: "faq-returns",
+      question: "What is your returns / exchange policy?",
+      answer: "Every bike is quality-tested before it ships, so returns for change-of-mind aren't offered. For a manufacturing defect or a missing/damaged part, raise a claim and we'll make it right.",
+      category: "Returns",
+    },
+    {
+      id: "faq-delivery",
+      question: "When can I collect my bike after ordering?",
+      answer: "If your nearest store already stocks the model, same-day pickup is possible — call ahead to confirm. Otherwise, delivery typically takes 5-10 working days.",
+      category: "Service",
+    },
   ];
   for (const f of faqs) {
-    await db.faqItem.create({ data: { ...f, status: "LIVE" } });
+    const { id, ...data } = f;
+    await db.faqItem.upsert({
+      where: { id },
+      update: { ...data, status: "LIVE" },
+      create: { id, ...data, status: "LIVE" },
+    });
   }
 
   console.log("Seeded.");

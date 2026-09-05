@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { StatBox } from "@/components/ui/StatBox";
 import { BatteryCharging, ShieldCheck, Star, Store } from "lucide-react";
+import { WARRANTY, CANONICAL_CONTACT } from "@/lib/siteConfig";
 
 export const dynamic = "force-dynamic";
 
@@ -40,8 +41,7 @@ export default async function HomePage() {
             </h1>
             <p className="max-w-[44ch] text-[16px] text-white/75">
               ₹35,000 becomes ₹1,458 a month — no-cost EMI on every RAPTRIC
-              eBike, backed by a 2-yr frame warranty and 20 stores across
-              Maharashtra.
+              eBike, backed by a {WARRANTY.headline} and {CANONICAL_CONTACT.addressLine}.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -64,10 +64,10 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 pb-8">
         <StatBox
           items={[
-            { label: "20 retailers", icon: <Store className="size-5 text-action" /> },
+            { label: "20+ retail partners", icon: <Store className="size-5 text-action" /> },
             { label: "4.4★ · 1,200+ riders", icon: <Star className="size-5 text-action" /> },
             { label: "60 km per charge", icon: <BatteryCharging className="size-5 text-action" /> },
-            { label: "2-yr frame warranty", icon: <ShieldCheck className="size-5 text-action" /> },
+            { label: WARRANTY.headline, icon: <ShieldCheck className="size-5 text-action" /> },
           ]}
         />
       </section>

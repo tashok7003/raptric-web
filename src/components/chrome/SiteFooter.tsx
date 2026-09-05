@@ -4,6 +4,7 @@ import {
   CANONICAL_CONTACT,
   PAYMENT_MARKS,
   LEGAL_LINKS,
+  SOCIAL_LINKS,
 } from "@/lib/siteConfig";
 
 interface SiteFooterProps {
@@ -57,7 +58,7 @@ export function SiteFooter({ variant = "full" }: SiteFooterProps) {
             Get in touch
           </span>
           <p className="text-[13px]">
-            {CANONICAL_CONTACT.addressLine}
+            {CANONICAL_CONTACT.flagshipAddress}
             <br />
             {CANONICAL_CONTACT.phone}
             <br />
@@ -73,6 +74,19 @@ export function SiteFooter({ variant = "full" }: SiteFooterProps) {
               >
                 {mark}
               </span>
+            ))}
+          </div>
+          <div className="flex gap-3">
+            {SOCIAL_LINKS.map((s) => (
+              <a
+                key={s.href}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[13px] hover:text-white"
+              >
+                {s.label}
+              </a>
             ))}
           </div>
         </div>

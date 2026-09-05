@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { MapPin, Phone } from "lucide-react";
+import { CANONICAL_CONTACT } from "@/lib/siteConfig";
 
 export const dynamic = "force-dynamic";
 
 // Store finder (1j) — list-first, not map-first; the audit that flagged
-// this called it "directly fixes an audit finding."
+// this called it "directly fixes an audit finding." This lists RAPTRIC's
+// own store(s) — the growing retail-partner network is a separate
+// concept (see the Retailer model / BD pipeline), not listed here yet.
 export default async function StoreListPage() {
   const stores = await db.store.findMany({ orderBy: { name: "asc" } });
 
@@ -13,8 +16,8 @@ export default async function StoreListPage() {
     <div className="mx-auto max-w-4xl px-4 py-6">
       <h1 className="font-display text-[22px] font-bold text-ink">Find a store</h1>
       <p className="mt-1 text-[14px] text-ink-muted">
-        {stores.length} stores across Maharashtra — test rides, service and
-        collect-in-store, all walk-in.
+        Our own store, plus {CANONICAL_CONTACT.addressLine} — test rides,
+        service and collect-in-store, all walk-in.
       </p>
 
       <div className="mt-6 flex flex-col gap-3">

@@ -65,12 +65,25 @@ export const FOOTER_COLUMNS = [
 // One canonical field, per 2a's fix for the hours drift — the retail
 // network's contact block. The separate care-line hours (13c) are labelled
 // apart, not merged into this one.
+//
+// One flagship store (RAPTRIC's own — Banashankari, Bengaluru) plus a
+// growing network of retail partners, not 20 company-owned stores —
+// `addressLine` is the network-scale summary used in marketing copy;
+// `flagshipAddress` is the literal visit-us address for the footer.
 export const CANONICAL_CONTACT = {
-  addressLine: "20 stores across Maharashtra",
-  phone: "+91 88888 00000",
-  hours: "Stores open Mon–Sun, 10:00–20:00",
+  addressLine: "20+ retail partners across Bengaluru",
+  flagshipAddress: "367, 10th Main, Vidyapeeta Main Road, Banashankari 3rd Stage, Bengaluru 560085",
+  phone: "+91 93802 76355",
+  hours: "Store open Mon–Sun, 10:30am–8:30pm",
   careLineHours: "Care line Mon–Sat, 10:00–19:00",
 };
+
+// Real RAPTRIC socials (raptric.in) — @rideraptric everywhere.
+export const SOCIAL_LINKS = [
+  { label: "Facebook", href: "https://www.facebook.com/rideraptric" },
+  { label: "Instagram", href: "https://www.instagram.com/rideraptric" },
+  { label: "Twitter", href: "https://www.twitter.com/rideraptric" },
+] as const;
 
 export const PAYMENT_MARKS = ["UPI", "Card", "Bajaj EMI"] as const;
 
@@ -83,12 +96,14 @@ export const LEGAL_LINKS = [
 ] as const;
 
 // Warranty ladder (turn 6/9's fix) — worded identically everywhere.
+// Numbers match RAPTRIC's real published warranty schedule (raptric.in).
 export const WARRANTY = {
-  headline: "2-yr frame warranty",
+  headline: "5-yr frame warranty",
   ladder: [
-    { part: "Frame", months: 24 },
-    { part: "Motor", months: 18 },
-    { part: "Battery", months: 12 },
+    { part: "Frame", months: 60 },
+    { part: "Battery", months: 24 },
+    { part: "Hub motor", months: 24 },
+    { part: "Other electronics", months: 6 },
   ],
   claimPickupFee: 250,
 };
@@ -103,6 +118,5 @@ export const EMI = {
 
 export const CANCELLATION_FEE = 1500;
 export const AGENT_REFUND_CAP = 5000;
-export const RETURN_WINDOW_DAYS = 7;
 export const RESERVE_HOLD_HOURS = 48;
 export const CART_MAX_QTY = 4; // Bajaj won't finance 6 bikes to one PAN (14d)

@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { NEXT_ORDER_STATUS } from "@/lib/orderStatus";
-import { WARRANTY, CANCELLATION_FEE, RETURN_WINDOW_DAYS } from "@/lib/siteConfig";
+import { WARRANTY, CANCELLATION_FEE } from "@/lib/siteConfig";
 import type { OrderStatus } from "@/generated/prisma/enums";
 import { getCurrentUser } from "@/lib/session";
 
@@ -64,7 +64,7 @@ export async function activateWarrantyAction(orderId: string) {
     return d;
   };
   const frame = WARRANTY.ladder.find((l) => l.part === "Frame")!.months;
-  const motor = WARRANTY.ladder.find((l) => l.part === "Motor")!.months;
+  const motor = WARRANTY.ladder.find((l) => l.part === "Hub motor")!.months;
   const battery = WARRANTY.ladder.find((l) => l.part === "Battery")!.months;
 
   for (const item of order.items) {
@@ -88,26 +88,22 @@ export async function activateWarrantyAction(orderId: string) {
   revalidatePath(`/order-confirmation/${orderId}`);
 }
 
-export async function requestReturnAction(
-  orderId: string,
-  kind: "return" | "cancel" | "exchange",
-  reason?: string,
-) {
-  const order = await requireOrderAccess(orderId);
-  const feeCharged = kind === "cancel" ? CANCELLATION_FEE : 0;
+// RAPTRIC's real policy is defects-only after delivery — no
+// buyer's-remorse return window — so the only self-service path back
+// is cancelling before it ships. A delivered order's only path back is
+// the Claims flow (src/lib/actions/claims.ts), not this action.
+export async function cancelOrderAction(orderId: string) {
+  await requireOrderAccess(orderId);
+  const feeCharged = CANCELLATION_FEE;
 
   await db.returnRequest.upsert({
     where: { orderId },
-    update: { kind, reason, feeCharged },
-    create: { orderId, kind, reason, feeCharged },
+    update: { kind: "cancel", feeCharged },
+    create: { orderId, kind: "cancel", feeCharged },
   });
 
-  if (kind === "cancel") {
-    await db.order.update({ where: { id: orderId }, data: { status: "CANCELLED" } });
-  } else if (kind === "return") {
-    await db.order.update({ where: { id: orderId }, data: { status: "RETURNED" } });
-  }
+  await db.order.update({ where: { id: orderId }, data: { status: "CANCELLED" } });
 
   revalidatePath(`/order-confirmation/${orderId}`);
-  return { feeCharged, returnWindowDays: RETURN_WINDOW_DAYS };
+  return { feeCharged };
 }

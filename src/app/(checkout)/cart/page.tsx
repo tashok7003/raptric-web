@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCart } from "@/lib/cart";
 import { CartLineItem } from "@/components/cart/CartLineItem";
-import { RESERVE_HOLD_HOURS, RETURN_WINDOW_DAYS } from "@/lib/siteConfig";
+import { RESERVE_HOLD_HOURS, WARRANTY } from "@/lib/siteConfig";
 import { isEmiEligible, calcEmiMonthly } from "@/lib/emi";
 
 export const dynamic = "force-dynamic";
@@ -49,8 +49,7 @@ export default async function CartPage() {
       </h1>
 
       <div className="mt-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-info-bg px-4 py-2.5 text-[13px] text-action">
-        Held for {RESERVE_HOLD_HOURS} hours · {RETURN_WINDOW_DAYS}-day returns
-        if it's not right
+        Held for {RESERVE_HOLD_HOURS} hours · {WARRANTY.headline}, defects covered
       </div>
 
       <div className="mt-4 flex flex-col gap-3">

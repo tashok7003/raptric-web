@@ -8,7 +8,7 @@ import { WARRANTY } from "@/lib/siteConfig";
 import { computeStockDisplay } from "@/lib/stock";
 import { AddToCartBar } from "@/components/pdp/AddToCartBar";
 import { AddToCartButton } from "@/components/pdp/AddToCartButton";
-import { ShieldCheck, Truck, Undo2 } from "lucide-react";
+import { ShieldCheck, Truck, PackageCheck } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -129,7 +129,7 @@ export default async function ProductDetailPage({
               <Truck className="size-3.5" aria-hidden /> Free assembly
             </span>
             <span className="inline-flex items-center gap-1 rounded-[999px] border border-[var(--color-border)] px-2.5 py-1 text-[12px] text-ink-muted">
-              <Undo2 className="size-3.5" aria-hidden /> 7-day returns
+              <PackageCheck className="size-3.5" aria-hidden /> Quality-checked before dispatch
             </span>
           </div>
         </div>

@@ -15,14 +15,14 @@ export const LEGAL_PAGES: Record<string, { title: string; body: string }> = {
   },
   terms: {
     title: "Terms of Service",
-    body: "By placing an order you agree to RAPTRIC's pricing, delivery and warranty terms as displayed at checkout. Disputes are subject to the jurisdiction of Pune courts.",
+    body: "By placing an order you agree to RAPTRIC's pricing, delivery and warranty terms as displayed at checkout. Disputes are subject to the jurisdiction of Bengaluru courts.",
   },
   "cancellation-refund": {
     title: "Cancellation & Refund Policy",
-    body: "Orders can be cancelled before delivery for a ₹1,500 fee. Delivered orders can be returned within 7 days in original condition for a full refund, processed within 5-7 working days. Warranty claims are handled separately — see Warranty & Activation.",
+    body: "Orders can be cancelled before delivery for a ₹1,500 fee. Every bike is quality-checked before it ships, so we don't offer returns or exchanges for change of mind once delivered. A manufacturing defect or missing/damaged part is covered under warranty — raise a claim from your account and we'll repair, replace, or refund as appropriate.",
   },
   shipping: {
     title: "Shipping Policy",
-    body: "Orders ship assembled and charged from your nearest RAPTRIC store. Delivery is free within the serviceable zone; outside it, a ₹900 delivery fee applies. Estimated delivery is 4-6 working days from payment confirmation.",
+    body: "Bikes ship 90% assembled from your nearest RAPTRIC store or retail partner, with a short guided assembly to finish. Delivery is free within the serviceable zone; outside it, a ₹900 delivery fee applies. If your model is in stock locally, same-day pickup is possible; otherwise estimated delivery is 5-10 working days from payment confirmation.",
   },
 };

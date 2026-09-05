@@ -40,7 +40,7 @@ export function CheckoutFlow({
     pincode: "",
     addressLine: "",
     city: "",
-    state: "Maharashtra",
+    state: "Karnataka",
   });
 
   const [orderId, setOrderId] = useState<string | null>(null);

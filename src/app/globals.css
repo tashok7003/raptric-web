@@ -12,13 +12,18 @@
   --color-ink-muted: #5c574e;
   --color-surface: #faf9f6;
   --color-surface-sunk: #f0eee9;
-  /* #2a78d6 measured ~4.42:1 on white, just under the 4.5:1 AA minimum
-     for normal-weight text (it's used both as button-label text and as
-     small link text, not just large/bold contexts). Darkened one notch
-     to ~5:1. */
-  --color-action: #2570c4;
-  --color-action-hover: #2264b4;
-  --color-action-active: #1c559c;
+  /* RAPTRIC's real brand green, pulled from raptric.in's own CSS
+     (#00a652 is their dominant brand swatch — 298 occurrences — used
+     for large surfaces/icons/accents there). That exact shade measures
+     only ~3.2:1 on white, under the 4.5:1 AA minimum for normal-weight
+     text/button labels, so the base action token uses their own
+     next-darkest shade (~5:1) instead; #00a652 itself lives on as
+     --color-brand-accent for large-surface/decorative use where 3:1
+     (not 4.5:1) is the relevant threshold. */
+  --color-brand-accent: #00a652;
+  --color-action: #008040;
+  --color-action-hover: #006b35;
+  --color-action-active: #00592c;
   --color-success: #0f7b52;
   --color-success-bg: #f2f8f2;
   --color-success-border: #bcdcc7;
@@ -28,8 +33,12 @@
   --color-danger: #c0392b;
   --color-danger-bg: #fdf1f1;
   --color-danger-border: #e8b4ae;
-  --color-info-bg: #f7f9fc;
-  --color-info-border: #c3d5ea;
+  /* Neutral rather than blue — "info" now sits next to text-action,
+     which is green since the rebrand, and a blue-tinted background read
+     oddly under green text. A desaturated neutral works under any
+     accent colour and stays visually distinct from --color-success. */
+  --color-info-bg: #f4f5f3;
+  --color-info-border: #d8dcd6;
   --color-border: #cfcac0;
   --color-border-strong: rgba(0, 0, 0, 0.15);
 
@@ -70,6 +79,7 @@
   --color-ink-muted: var(--color-ink-muted);
   --color-surface: var(--color-surface);
   --color-surface-sunk: var(--color-surface-sunk);
+  --color-brand-accent: var(--color-brand-accent);
   --color-action: var(--color-action);
   --color-action-hover: var(--color-action-hover);
   --color-action-active: var(--color-action-active);

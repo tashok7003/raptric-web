@@ -3,7 +3,7 @@ import { WARRANTY } from "@/lib/siteConfig";
 
 // Warranty policy (4e) — a summary table above the legal text, the fix
 // from turn 6: the PDP chip, trust bars and this page now agree on one
-// ladder ("2-yr frame warranty" everywhere, not a blanket "2-year").
+// ladder (WARRANTY.headline everywhere, not a hand-typed duplicate).
 export default function WarrantyPolicyPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
@@ -43,8 +43,8 @@ export default function WarrantyPolicyPage() {
       <p className="mt-8 text-[15px] leading-relaxed text-ink-muted">
         Warranty covers manufacturing defects only and is void for damage
         from accidents, unauthorised repairs, or use outside normal
-        commuting conditions. Register your frame number within 30 days of
-        delivery to keep your claim window open.
+        commuting conditions. Register your frame number within 3 days of
+        purchase to keep your claim window open.
       </p>
     </div>
   );

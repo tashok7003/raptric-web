@@ -7,9 +7,9 @@ import { StatusCard } from "@/components/ui/StatusCard";
 import {
   advanceOrderStatusAction,
   activateWarrantyAction,
-  requestReturnAction,
+  cancelOrderAction,
 } from "@/lib/actions/order";
-import { CANCELLATION_FEE, RETURN_WINDOW_DAYS } from "@/lib/siteConfig";
+import { CANCELLATION_FEE } from "@/lib/siteConfig";
 
 interface OrderActionsProps {
   orderId: string;
@@ -21,7 +21,9 @@ interface OrderActionsProps {
 // Sandbox order-progress controls, standing in for the courier
 // webhook/ops action that doesn't exist yet (no AWB integration — 12d),
 // plus the two real rider actions: activate warranty on delivery, and
-// cancel/return within the window (3e).
+// cancel before it ships (3e). RAPTRIC's real policy is defects-only
+// after delivery — no buyer's-remorse return window — so a delivered
+// order's only path back is the Claims flow, not a return button here.
 export function OrderActions({
   orderId,
   status,
@@ -30,7 +32,7 @@ export function OrderActions({
 }: OrderActionsProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [returnResult, setReturnResult] = useState<{ feeCharged: number } | null>(null);
+  const [cancelResult, setCancelResult] = useState<{ feeCharged: number } | null>(null);
 
   return (
     <div className="mt-6 flex flex-col gap-3">
@@ -86,8 +88,8 @@ export function OrderActions({
           loading={pending}
           onClick={() =>
             startTransition(async () => {
-              const res = await requestReturnAction(orderId, "cancel");
-              setReturnResult(res);
+              const res = await cancelOrderAction(orderId);
+              setCancelResult(res);
               router.refresh();
             })
           }
@@ -96,29 +98,13 @@ export function OrderActions({
         </Button>
       )}
 
-      {status === "DELIVERED" && (
-        <Button
-          variant="secondary"
-          loading={pending}
-          onClick={() =>
-            startTransition(async () => {
-              const res = await requestReturnAction(orderId, "return", "Not what I expected");
-              setReturnResult(res);
-              router.refresh();
-            })
-          }
-        >
-          Return within {RETURN_WINDOW_DAYS} days
-        </Button>
-      )}
-
-      {returnResult && (
+      {cancelResult && (
         <StatusCard
-          tone={returnResult.feeCharged > 0 ? "caution" : "success"}
+          tone={cancelResult.feeCharged > 0 ? "caution" : "success"}
           label="Request received"
           title={
-            returnResult.feeCharged > 0
-              ? `₹${returnResult.feeCharged} cancellation fee applies`
+            cancelResult.feeCharged > 0
+              ? `₹${cancelResult.feeCharged} cancellation fee applies`
               : "No fee — refund on the way"
           }
         />

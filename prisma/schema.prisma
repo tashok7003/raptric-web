@@ -390,7 +390,9 @@ model ReturnRequest {
   id         String   @id @default(cuid())
   orderId    String   @unique
   order      Order    @relation(fields: [orderId], references: [id])
-  kind       String // "return" | "cancel" | "exchange"
+  kind       String // "cancel" — pre-delivery only; RAPTRIC's real policy
+  // has no post-delivery buyer's-remorse return, only defect claims
+  // (see the Claim model)
   reason     String?
   feeCharged Int      @default(0)
   status     String   @default("REQUESTED")

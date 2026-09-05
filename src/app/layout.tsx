@@ -3,6 +3,7 @@ import { Archivo, Mukta } from "next/font/google";
 import "./globals.css";
 import { ConsentBanner } from "@/components/chrome/ConsentBanner";
 import { getConsentChoice } from "@/lib/consent";
+import { WARRANTY, CANONICAL_CONTACT } from "@/lib/siteConfig";
 
 // Type pairing 10a: Archivo (display, industrial/dense, best numerals) +
 // Mukta (body — ships with a matched Devanagari so a Marathi site later
@@ -24,8 +25,7 @@ export const metadata: Metadata = {
     default: "RAPTRIC — eBikes for the daily commute",
     template: "%s — RAPTRIC",
   },
-  description:
-    "eBikes and mBikes with no-cost EMI, a 2-year frame warranty, and 20 stores across Maharashtra.",
+  description: `eBikes and mBikes with no-cost EMI, a ${WARRANTY.headline}, and ${CANONICAL_CONTACT.addressLine}.`,
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
