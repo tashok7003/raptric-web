@@ -12,7 +12,11 @@
   --color-ink-muted: #5c574e;
   --color-surface: #faf9f6;
   --color-surface-sunk: #f0eee9;
-  --color-action: #2a78d6;
+  /* #2a78d6 measured ~4.42:1 on white, just under the 4.5:1 AA minimum
+     for normal-weight text (it's used both as button-label text and as
+     small link text, not just large/bold contexts). Darkened one notch
+     to ~5:1. */
+  --color-action: #2570c4;
   --color-action-hover: #2264b4;
   --color-action-active: #1c559c;
   --color-success: #0f7b52;
@@ -28,6 +32,14 @@
   --color-info-border: #c3d5ea;
   --color-border: #cfcac0;
   --color-border-strong: rgba(0, 0, 0, 0.15);
+
+  /* Fixed (non-theme-reactive) chrome colours for bands that must stay
+     dark regardless of light/dark mode — footer, internal tool header.
+     --color-ink itself flips to near-white in dark mode, so those bands
+     used to invert to a near-white background with near-white text. */
+  --color-chrome-bg: #1c1a17;
+  --color-chrome-border: #4a453d;
+  --color-chrome-muted: #b8b1a6;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -73,6 +85,9 @@
   --color-info-bg: var(--color-info-bg);
   --color-info-border: var(--color-info-border);
   --color-border: var(--color-border);
+  --color-chrome-bg: var(--color-chrome-bg);
+  --color-chrome-border: var(--color-chrome-border);
+  --color-chrome-muted: var(--color-chrome-muted);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 

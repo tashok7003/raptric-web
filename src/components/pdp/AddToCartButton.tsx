@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { CheckCircle2 } from "lucide-react";
 import { addToCartAction } from "@/lib/actions/cart";
 import { Button } from "@/components/ui/Button";
 
@@ -42,7 +43,13 @@ export function AddToCartButton({
         })
       }
     >
-      {added ? "Added ✓" : "Add to cart"}
+      {added ? (
+        <span className="flex items-center gap-1.5">
+          <CheckCircle2 className="size-4" aria-hidden /> Added
+        </span>
+      ) : (
+        "Add to cart"
+      )}
     </Button>
   );
 }

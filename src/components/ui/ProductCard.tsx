@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { Heart, Scale } from "lucide-react";
+import { CheckCircle2, Heart, Scale } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { PriceBlock } from "./PriceBlock";
 import { Chip } from "./Chip";
@@ -174,7 +174,13 @@ export function ProductCard({ product, onNotifyMe }: ProductCardProps) {
           pulse={justAdded}
           className="mt-1"
         >
-          {justAdded ? "Added ✓" : "Add to cart"}
+          {justAdded ? (
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-4" aria-hidden /> Added
+            </span>
+          ) : (
+            "Add to cart"
+          )}
         </Button>
       )}
     </motion.div>

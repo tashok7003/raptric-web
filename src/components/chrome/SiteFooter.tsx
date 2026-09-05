@@ -17,7 +17,7 @@ interface SiteFooterProps {
 export function SiteFooter({ variant = "full" }: SiteFooterProps) {
   if (variant === "checkout") {
     return (
-      <footer className="border-t border-[var(--color-border)] bg-ink px-4 py-4 text-[#b8b1a6]">
+      <footer className="border-t border-[var(--color-border)] bg-chrome px-4 py-4 text-chrome-muted">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-[11px]">
           <span>Secured by Razorpay</span>
           <span className="ml-auto flex gap-3">
@@ -34,7 +34,7 @@ export function SiteFooter({ variant = "full" }: SiteFooterProps) {
   }
 
   return (
-    <footer className="mt-auto bg-ink px-4 py-8 text-[#b8b1a6]">
+    <footer className="mt-auto bg-chrome px-4 py-8 text-chrome-muted">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 md:grid-cols-4">
         {FOOTER_COLUMNS.map((col) => (
           <div key={col.heading} className="flex flex-col gap-2">
@@ -69,7 +69,7 @@ export function SiteFooter({ variant = "full" }: SiteFooterProps) {
             {PAYMENT_MARKS.map((mark) => (
               <span
                 key={mark}
-                className="rounded-full border border-[#4a453d] px-2 py-0.5 text-[11px]"
+                className="rounded-full border border-chrome px-2 py-0.5 text-[11px]"
               >
                 {mark}
               </span>
@@ -77,7 +77,7 @@ export function SiteFooter({ variant = "full" }: SiteFooterProps) {
           </div>
         </div>
       </div>
-      <div className="mx-auto mt-6 flex max-w-6xl flex-wrap items-center gap-4 border-t border-[#4a453d] pt-3 text-[12px]">
+      <div className="mx-auto mt-6 flex max-w-6xl flex-wrap items-center gap-4 border-t border-chrome pt-3 text-[12px]">
         {LEGAL_LINKS.map((l) => (
           <Link key={l.href} href={l.href} className="hover:text-white">
             {l.label}

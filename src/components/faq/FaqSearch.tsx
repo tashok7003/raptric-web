@@ -42,6 +42,7 @@ export function FaqSearch({ items }: { items: FaqItemData[] }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search FAQ"
+          aria-label="Search FAQ"
           className="w-full rounded-[6px] border border-[var(--color-border)] py-2.5 pl-9 pr-3 text-[15px] outline-none focus:border-ink"
         />
       </div>
