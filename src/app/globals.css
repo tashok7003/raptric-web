@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/*
+  RAPTRIC design tokens — from the wireframe handoff, turn 8e/10a/10c.
+  Seven semantic colours (not seventy), two type families / six sizes,
+  a 4-point space scale. Page layouts are deliberately NOT tokens (8e) —
+  those live in code, structured by the CMS-editable sections only.
+*/
+
+:root {
+  --color-ink: #1c1a17;
+  --color-ink-muted: #5c574e;
+  --color-surface: #faf9f6;
+  --color-surface-sunk: #f0eee9;
+  --color-action: #2a78d6;
+  --color-action-hover: #2264b4;
+  --color-action-active: #1c559c;
+  --color-success: #0f7b52;
+  --color-success-bg: #f2f8f2;
+  --color-success-border: #bcdcc7;
+  --color-caution: #b0740c;
+  --color-caution-bg: #fdf8ef;
+  --color-caution-border: #e8d5ae;
+  --color-danger: #c0392b;
+  --color-danger-bg: #fdf1f1;
+  --color-danger-border: #e8b4ae;
+  --color-info-bg: #f7f9fc;
+  --color-info-border: #c3d5ea;
+  --color-border: #cfcac0;
+  --color-border-strong: rgba(0, 0, 0, 0.15);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --radius-pill: 999px;
+
+  /* Apple-style spring timing, used by src/lib/motion.ts for interactive
+     motion; the token budget above (120ms enter / 90ms exit) still governs
+     simple fades/opacity changes that don't warrant a spring. */
+  --ease-standard: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-enter: 120ms;
+  --duration-exit: 90ms;
+
+  --background: var(--color-surface);
+  --foreground: var(--color-ink);
+}
+
+@theme inline {
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-surface: var(--color-surface);
+  --color-surface-sunk: var(--color-surface-sunk);
+  --color-action: var(--color-action);
+  --color-action-hover: var(--color-action-hover);
+  --color-action-active: var(--color-action-active);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-success-border: var(--color-success-border);
+  --color-caution: var(--color-caution);
+  --color-caution-bg: var(--color-caution-bg);
+  --color-caution-border: var(--color-caution-border);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-danger-border: var(--color-danger-border);
+  --color-info-bg: var(--color-info-bg);
+  --color-info-border: var(--color-info-border);
+  --color-border: var(--color-border);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-mukta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono-token: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* six type roles — 8e */
+  --text-display: 44px;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+
+  --text-heading: 22px;
+  --text-heading--line-height: 1.2;
+  --text-heading--font-weight: 600;
+
+  --text-body: 16px;
+  --text-body--line-height: 1.55;
+  --text-body--font-weight: 400;
+
+  --text-price: 20px;
+  --text-price--line-height: 1;
+  --text-price--font-weight: 600;
+
+  --text-label: 13px;
+  --text-label--letter-spacing: 0.08em;
+  --text-label--font-weight: 600;
+
+  --text-mono: 13px;
+  --text-mono--font-weight: 400;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-surface: #161512;
+    --color-surface-sunk: #1f1e1a;
+    --color-ink: #f2f0ea;
+    --color-ink-muted: #b8b2a6;
+    --color-border: #38352e;
+    --background: var(--color-surface);
+    --foreground: var(--color-ink);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-surface: #161512;
+  --color-surface-sunk: #1f1e1a;
+  --color-ink: #f2f0ea;
+  --color-ink-muted: #b8b2a6;
+  --color-border: #38352e;
+  --background: var(--color-surface);
+  --foreground: var(--color-ink);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--color-ink);
+  outline-offset: 2.5px;
+  border-radius: 4px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-token {
+  font-family: var(--font-mono-token);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

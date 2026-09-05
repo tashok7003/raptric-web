@@ -1,0 +1,566 @@
+// RAPTRIC — data model
+// Built off the wireframe spec (RAPTRIC Wireframes.dc.html, turns 1-14):
+// warranty ladder (frame 2yr / motor 18mo / battery 12mo), EMI via Bajaj,
+// tier-2 stock (network/floor/reserved), 5-item locked nav + CMS, roles matrix (7b).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- People & access (7b permission matrix, 8a roles) ----------
+
+enum Role {
+  RIDER
+  FOUNDER
+  OPS_LEAD
+  SUPPORT_AGENT
+  MARKETING_EDITOR
+  RETAILER
+  ADMIN
+}
+
+model User {
+  id         String    @id @default(cuid())
+  phone      String    @unique
+  name       String?
+  email      String?
+  locale     String    @default("en") // "en" | "mr" — 11f
+  role       Role      @default(RIDER)
+  retailerId String?
+  retailer   Retailer? @relation(fields: [retailerId], references: [id])
+  createdAt  DateTime  @default(now())
+
+  addresses     Address[]
+  orders        Order[]
+  cart          Cart?
+  bikes         OwnedBike[]
+  testRides     TestRide[]
+  claims        Claim[]
+  reviews       Review[]
+  consents      ConsentRecord[]
+  notifications Notification[]
+  otpCodes      OtpCode[]
+  auditEvents   AuditLog[]
+  sessions      Session[]
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  device    String?
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+}
+
+model OtpCode {
+  id         String    @id @default(cuid())
+  phone      String
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id])
+  code       String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+model Address {
+  id          String  @id @default(cuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id])
+  label       String
+  line1       String
+  line2       String?
+  city        String
+  state       String
+  pincode     String
+  serviceable Boolean @default(true) // re-checked against Serviceability
+  isDefault   Boolean @default(false)
+  orders      Order[]
+}
+
+// ---------- Retailer / BD (7a, 8b) ----------
+
+model Retailer {
+  id              String           @id @default(cuid())
+  name            String
+  ownerName       String
+  phone           String
+  status          String           @default("APPLIED") // APPLIED, TERRITORY_CHECKED, DOCS, APPROVED, LIVE, REJECTED
+  territoryPin    String
+  stalenessFlag   Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  users           User[]
+  stores          Store[]
+  wholesaleOrders WholesaleOrder[]
+}
+
+model WholesaleOrder {
+  id          String       @id @default(cuid())
+  retailerId  String
+  retailer    Retailer     @relation(fields: [retailerId], references: [id])
+  modelId     String
+  model       ProductModel @relation(fields: [modelId], references: [id])
+  quantity    Int
+  consignment Boolean      @default(true)
+  status      String       @default("PENDING")
+  createdAt   DateTime     @default(now())
+}
+
+// ---------- Stores (1j, 11a) ----------
+
+model Store {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  retailerId   String?
+  retailer     Retailer? @relation(fields: [retailerId], references: [id])
+  address      String
+  city         String
+  pincode      String
+  lat          Float?
+  lng          Float?
+  hoursJson    String // e.g. {"mon-sun":"10:00-20:00"}
+  phone        String
+  photos       String    @default("[]") // JSON array of media asset ids
+  servicesJson String    @default("[]") // ["test-ride","service","collect-in-store"]
+  createdAt    DateTime  @default(now())
+
+  stockLevels StoreStock[]
+  testRides   TestRide[]
+}
+
+model StoreStock {
+  id        String       @id @default(cuid())
+  storeId   String
+  store     Store        @relation(fields: [storeId], references: [id])
+  modelId   String
+  model     ProductModel @relation(fields: [modelId], references: [id])
+  count     Int          @default(0)
+  updatedAt DateTime     @updatedAt // tier-2 "on this floor" timestamp, 13b
+
+  @@unique([storeId, modelId])
+}
+
+model Serviceability {
+  id           String  @id @default(cuid())
+  pincode      String  @unique
+  serviceable  Boolean @default(true)
+  freeDelivery Boolean @default(true)
+  etaDays      String  @default("4-6")
+}
+
+// ---------- Catalogue (CMS: 1o/1p/4h, cards: 4b) ----------
+
+enum ProductKind {
+  EBIKE
+  MBIKE
+  ACCESSORY
+  BATTERY
+}
+
+model ProductModel {
+  id              String      @id @default(cuid())
+  slug            String      @unique
+  kind            ProductKind
+  name            String // "RAPTRIC L27+"
+  bestSeller      Boolean     @default(false)
+  isNew           Boolean     @default(false)
+  mrp             Int
+  price           Int
+  emiTenureMonths Int         @default(24)
+  emiMonthly      Int?
+  rangeKm         Int? // eBike only — gauge icon, "N km per charge"
+  gears           Int? // mBike
+  wheelSize       String? // mBike, e.g. 27.5"
+  batteryWh       Int?
+  specsJson       String      @default("{}")
+  heroImage       String?
+  gallery         String      @default("[]")
+  globalStock     Int         @default(0) // network tier
+  status          String      @default("DRAFT") // DRAFT, LIVE, ARCHIVED
+  publishedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  storeStock      StoreStock[]
+  reviews         Review[]
+  ownedBikes      OwnedBike[]
+  wholesaleOrders WholesaleOrder[]
+  compareItems    CompareItem[]
+  testRides       TestRide[]
+}
+
+model CompareItem {
+  id        String       @id @default(cuid())
+  sessionId String
+  modelId   String
+  model     ProductModel @relation(fields: [modelId], references: [id])
+}
+
+// ---------- Cart / order / payment / EMI (2e/2f/9a/9b) ----------
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id])
+  guestKey  String?    @unique
+  createdAt DateTime   @default(now())
+  expiresAt DateTime? // 7-day hold, 9c
+  items     CartItem[]
+}
+
+model CartItem {
+  id            String       @id @default(cuid())
+  cartId        String
+  cart          Cart         @relation(fields: [cartId], references: [id])
+  modelId       String
+  model         ProductModel @relation(fields: [modelId], references: [id])
+  quantity      Int          @default(1)
+  reservedUntil DateTime? // 48-hr reserve, 9c/3f
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  ASSEMBLED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNo       String      @unique
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  addressId     String?
+  address       Address?    @relation(fields: [addressId], references: [id])
+  status        OrderStatus @default(PENDING_PAYMENT)
+  subtotal      Int
+  deliveryFee   Int         @default(0)
+  total         Int
+  guestCheckout Boolean     @default(false)
+  storeId       String? // collect-in-store
+  deliverySlot  DateTime?
+  createdAt     DateTime    @default(now())
+
+  items          OrderItem[]
+  payment        Payment?
+  emiApplication EmiApplication?
+  invoice        Invoice?
+  claims         Claim[]
+  returnRequest  ReturnRequest?
+}
+
+model OrderItem {
+  id       String       @id @default(cuid())
+  orderId  String
+  order    Order        @relation(fields: [orderId], references: [id])
+  modelId  String
+  model    ProductModel @relation(fields: [modelId], references: [id])
+  quantity Int          @default(1)
+  price    Int
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  EMI
+  STORE
+}
+
+enum PaymentStatus {
+  INITIATED
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           String        @unique
+  order             Order         @relation(fields: [orderId], references: [id])
+  method            PaymentMethod
+  status            PaymentStatus @default(INITIATED)
+  amount            Int
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  failureReason     String?
+  cartHeldUntil     DateTime? // failed-payment recovery queue, 5a
+  createdAt         DateTime      @default(now())
+}
+
+enum EmiStatus {
+  PRE_APPROVAL
+  PENDING
+  APPROVED
+  DECLINED
+}
+
+model EmiApplication {
+  id            String    @id @default(cuid())
+  orderId       String    @unique
+  order         Order     @relation(fields: [orderId], references: [id])
+  tenureMonths  Int
+  monthlyAmount Int
+  status        EmiStatus @default(PENDING)
+  declineReason String?
+  bajajRefId    String?
+  createdAt     DateTime  @default(now())
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  invoiceNo String   @unique
+  gstin     String?
+  pdfUrl    String?
+  createdAt DateTime @default(now())
+}
+
+// ---------- Ownership / warranty / claims / service (3b/3c/3d/14b) ----------
+
+model OwnedBike {
+  id                   String       @id @default(cuid())
+  userId               String
+  user                 User         @relation(fields: [userId], references: [id])
+  modelId              String
+  model                ProductModel @relation(fields: [modelId], references: [id])
+  frameNumber          String       @unique
+  purchaseDate         DateTime
+  frameWarrantyUntil   DateTime
+  motorWarrantyUntil   DateTime
+  batteryWarrantyUntil DateTime
+  transferredFrom      String? // 14b warranty transfer — previous owner id
+  createdAt            DateTime     @default(now())
+
+  claims         Claim[]
+  serviceRecords ServiceRecord[]
+}
+
+model ServiceRecord {
+  id           String    @id @default(cuid())
+  bikeId       String
+  bike         OwnedBike @relation(fields: [bikeId], references: [id])
+  kind         String // "free-30-day", "scheduled", "repair"
+  storeId      String?
+  scheduledFor DateTime?
+  completedAt  DateTime?
+  notes        String?
+}
+
+enum ClaimStatus {
+  RECEIVED
+  ASSESSING
+  APPROVED
+  DECLINED
+  COMPLETED
+}
+
+model Claim {
+  id            String      @id @default(cuid())
+  claimNo       String      @unique
+  bikeId        String
+  bike          OwnedBike   @relation(fields: [bikeId], references: [id])
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  orderId       String?
+  order         Order?      @relation(fields: [orderId], references: [id])
+  component     String // frame | motor | battery
+  description   String
+  status        ClaimStatus @default(RECEIVED)
+  declineReason String?
+  pickupFee     Int         @default(250)
+  slaDueAt      DateTime?
+  createdAt     DateTime    @default(now())
+}
+
+model ReturnRequest {
+  id         String   @id @default(cuid())
+  orderId    String   @unique
+  order      Order    @relation(fields: [orderId], references: [id])
+  kind       String // "return" | "cancel" | "exchange"
+  reason     String?
+  feeCharged Int      @default(0)
+  status     String   @default("REQUESTED")
+  createdAt  DateTime @default(now())
+}
+
+// ---------- Test rides (3a/9d) ----------
+
+enum TestRideStatus {
+  BOOKED
+  CONFIRMED
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
+model TestRide {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  modelId   String
+  model     ProductModel   @relation(fields: [modelId], references: [id])
+  storeId   String
+  store     Store          @relation(fields: [storeId], references: [id])
+  slot      DateTime
+  status    TestRideStatus @default(BOOKED)
+  followUp  String?
+  createdAt DateTime       @default(now())
+}
+
+// ---------- Reviews (6b) ----------
+
+model Review {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id])
+  modelId         String
+  model           ProductModel @relation(fields: [modelId], references: [id])
+  rating          Int
+  rangeAchievedKm Int?
+  body            String?
+  verifiedOrder   Boolean      @default(true)
+  status          String       @default("PENDING") // PENDING, PUBLISHED, REJECTED
+  createdAt       DateTime     @default(now())
+}
+
+// ---------- CMS content: pages, journal, FAQ, nav, media (1o/1p/4f/4g/4h) ----------
+
+model Page {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  bodyJson    String    @default("{}")
+  locale      String    @default("en")
+  status      String    @default("DRAFT")
+  publishedAt DateTime?
+}
+
+model JournalPost {
+  id                    String    @id @default(cuid())
+  slug                  String    @unique
+  title                 String
+  excerpt               String?
+  bodyJson              String    @default("{}")
+  coverImage            String?
+  productCalloutModelId String?
+  locale                String    @default("en")
+  status                String    @default("DRAFT")
+  publishedAt           DateTime?
+  createdAt             DateTime  @default(now())
+}
+
+model FaqItem {
+  id       String @id @default(cuid())
+  question String
+  answer   String
+  category String
+  locale   String @default("en")
+  order    Int    @default(0)
+  status   String @default("DRAFT")
+}
+
+model FaqSearchLog {
+  id          String   @id @default(cuid())
+  query       String
+  resultCount Int
+  createdAt   DateTime @default(now())
+}
+
+model NavItem {
+  id       String  @id @default(cuid())
+  label    String
+  href     String
+  order    Int
+  parentId String?
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  url       String
+  altText   String
+  kind      String   @default("image")
+  createdAt DateTime @default(now())
+}
+
+// ---------- Notifications (11c, 12a message set) ----------
+
+model MessageTemplate {
+  id            String  @id @default(cuid())
+  key           String  @unique // e.g. "otp_login"
+  channel       String // sms | whatsapp | email
+  locale        String  @default("en")
+  body          String
+  optOutAllowed Boolean @default(false)
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  templateKey String
+  channel     String
+  payloadJson String    @default("{}")
+  status      String    @default("QUEUED") // QUEUED, SENT, FAILED, READ
+  createdAt   DateTime  @default(now())
+  readAt      DateTime?
+}
+
+// ---------- Consent / DPDP (11e) ----------
+
+model ConsentRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  kind      String // "analytics" | "marketing_whatsapp" | "marketing_sms"
+  granted   Boolean
+  createdAt DateTime @default(now())
+}
+
+// ---------- Safety / recall (14a) ----------
+
+model SafetyNotice {
+  id          String    @id @default(cuid())
+  modelId     String
+  frameStart  String
+  frameEnd    String
+  severity    String // "stop_riding" | "get_checked" | "advisory"
+  reason      String
+  signedOffBy String    @default("[]") // JSON array of two user ids
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// ---------- Analytics / audit (8d, 7b) ----------
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  propsJson String   @default("{}")
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  targetType String
+  targetId   String
+  metaJson   String   @default("{}")
+  createdAt  DateTime @default(now())
+}
