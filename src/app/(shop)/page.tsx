@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { StatBox } from "@/components/ui/StatBox";
@@ -17,32 +18,47 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-12 md:flex-row md:items-center">
-        <div className="flex flex-1 flex-col gap-4">
-          <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-tight text-ink md:text-[44px]">
-            The commute, sorted.
-          </h1>
-          <p className="max-w-[44ch] text-[16px] text-ink-muted">
-            ₹35,000 becomes ₹1,458 a month — no-cost EMI on every RAPTRIC
-            eBike, backed by a 2-yr frame warranty and 20 stores across
-            Maharashtra.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/bikes?type=ebike"
-              className="flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-action px-5 py-2.5 font-body text-[14px] font-semibold text-white hover:bg-[var(--color-action-hover)]"
-            >
-              Shop eBikes
-            </Link>
-            <Link
-              href="/emi"
-              className="flex min-h-11 items-center justify-center px-1 py-2.5 font-body text-[14px] font-semibold text-action hover:underline"
-            >
-              How EMI works →
-            </Link>
+      {/* Full-bleed hero: the photo's own composition puts the rider on the
+          horizon with dark open ground below — so, same principle as an
+          off-centre focus with a directional scrim, the veil sits over that
+          already-dark ground rather than a side, and the rider/horizon stay
+          fully clear above it. */}
+      <section className="relative isolate flex min-h-[440px] w-full items-end overflow-hidden md:min-h-[520px]">
+        <Image
+          src="https://images.unsplash.com/photo-1519583272095-6433daf26b6e?q=80&w=1920&auto=format&fit=crop"
+          alt="A rider mid-commute at sunrise"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[50%_62%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[rgba(28,26,23,0.92)] via-[rgba(28,26,23,0.4)] to-transparent" />
+        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 md:py-10">
+          <div className="flex max-w-[44ch] flex-col gap-4">
+            <h1 className="font-display text-[36px] font-bold leading-[1.05] tracking-tight text-white md:text-[44px]">
+              The commute, sorted.
+            </h1>
+            <p className="max-w-[44ch] text-[16px] text-white/75">
+              ₹35,000 becomes ₹1,458 a month — no-cost EMI on every RAPTRIC
+              eBike, backed by a 2-yr frame warranty and 20 stores across
+              Maharashtra.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/bikes?type=ebike"
+                className="flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-action px-5 py-2.5 font-body text-[14px] font-semibold text-white hover:bg-[var(--color-action-hover)]"
+              >
+                Shop eBikes
+              </Link>
+              <Link
+                href="/emi"
+                className="flex min-h-11 items-center justify-center px-1 py-2.5 font-body text-[14px] font-semibold text-white hover:underline"
+              >
+                How EMI works →
+              </Link>
+            </div>
           </div>
         </div>
-        <div className="aspect-4/3 flex-1 rounded-[var(--radius-card)] bg-surface-sunk" />
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-8">
