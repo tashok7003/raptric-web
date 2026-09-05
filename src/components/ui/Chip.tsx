@@ -38,7 +38,7 @@ export function Chip({
           type="button"
           onClick={onRemove}
           aria-label="Remove filter"
-          className="rounded-full p-0.5 hover:bg-black/5"
+          className="relative grid place-items-center rounded-full p-0.5 hover:bg-black/5 after:absolute after:-inset-3.5 after:content-['']"
         >
           <X className="size-3" aria-hidden />
         </button>

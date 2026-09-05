@@ -44,8 +44,9 @@ export function NavEditor({ items }: { items: { id: string; label: string; href:
                 })
               }
               aria-label="Remove"
+              className="grid size-11 shrink-0 place-items-center rounded-full hover:bg-surface-sunk"
             >
-              <X className="size-4 text-ink-muted" />
+              <X className="size-4 text-ink-muted" aria-hidden />
             </button>
           </li>
         ))}

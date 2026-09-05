@@ -20,12 +20,22 @@ export function StepTracker({
   orientation = "horizontal",
   className,
 }: StepTrackerProps) {
+  const currentIndex = steps.findIndex((s) => s.state === "current");
+  const progressText =
+    currentIndex >= 0 && (
+      <span className="sr-only">
+        Step {currentIndex + 1} of {steps.length}: {steps[currentIndex].label}
+      </span>
+    );
+
   if (orientation === "vertical") {
     return (
       <div className={cn("flex flex-col gap-1.5", className)}>
+        {progressText}
         {steps.map((step, i) => (
           <div
             key={i}
+            aria-current={step.state === "current" ? "step" : undefined}
             className={cn(
               "flex items-center gap-2 font-mono-token text-[13px]",
               step.state === "upcoming" ? "text-ink-muted/50" : "text-ink-muted",
@@ -41,9 +51,11 @@ export function StepTracker({
 
   return (
     <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
+      {progressText}
       {steps.map((step, i) => (
         <div key={i} className="flex items-center gap-1.5">
           <div
+            aria-current={step.state === "current" ? "step" : undefined}
             className={cn(
               "flex items-center gap-1.5 font-mono-token text-[13px]",
               step.state === "upcoming" ? "text-ink-muted/50" : "text-ink-muted",

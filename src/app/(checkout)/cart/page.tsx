@@ -59,6 +59,7 @@ export default async function CartPage() {
             key={item.id}
             itemId={item.id}
             name={item.model.name}
+            image={item.model.heroImage}
             price={item.model.price}
             quantity={item.quantity}
             reservedUntil={item.reservedUntil}

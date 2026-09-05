@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Minus, Plus, X } from "lucide-react";
@@ -9,6 +10,7 @@ import { CART_MAX_QTY } from "@/lib/siteConfig";
 interface CartLineItemProps {
   itemId: string;
   name: string;
+  image?: string | null;
   price: number;
   quantity: number;
   reservedUntil: Date | null;
@@ -17,6 +19,7 @@ interface CartLineItemProps {
 export function CartLineItem({
   itemId,
   name,
+  image,
   price,
   quantity,
   reservedUntil,
@@ -33,7 +36,11 @@ export function CartLineItem({
 
   return (
     <div className="flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3">
-      <div className="size-16 shrink-0 rounded-[6px] bg-surface-sunk" />
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-[6px] bg-surface-sunk">
+        {image ? (
+          <Image src={image} alt={name} fill sizes="64px" className="object-cover" />
+        ) : null}
+      </div>
       <div className="flex flex-1 flex-col gap-0.5">
         <span className="font-body text-[14px] font-semibold text-ink">
           {name}

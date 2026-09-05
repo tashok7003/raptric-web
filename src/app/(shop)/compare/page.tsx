@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/db";
 import { WARRANTY } from "@/lib/siteConfig";
 
@@ -62,7 +63,17 @@ export default async function ComparePage({
               <th className="w-32 text-left text-ink-muted"></th>
               {models.map((m) => (
                 <th key={m.id} className="p-2 text-left">
-                  <div className="aspect-4/3 w-full max-w-40 rounded-[var(--radius-card)] bg-surface-sunk" />
+                  <div className="relative aspect-4/3 w-full max-w-40 overflow-hidden rounded-[var(--radius-card)] bg-surface-sunk">
+                    {m.heroImage ? (
+                      <Image
+                        src={m.heroImage}
+                        alt={m.name}
+                        fill
+                        sizes="160px"
+                        className="object-cover"
+                      />
+                    ) : null}
+                  </div>
                   <span className="mt-2 block font-semibold text-ink">
                     {m.name}
                   </span>

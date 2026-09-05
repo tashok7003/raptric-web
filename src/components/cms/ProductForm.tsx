@@ -4,8 +4,22 @@ import { useState, useTransition } from "react";
 import { Field } from "@/components/ui/Field";
 import { Chip } from "@/components/ui/Chip";
 import { Button } from "@/components/ui/Button";
+import { StatusCard } from "@/components/ui/StatusCard";
 import { saveProductAction, type ProductFormInput } from "@/lib/actions/cms";
 import type { ProductKind } from "@/generated/prisma/enums";
+
+/** `redirect()` inside a server action throws this to signal Next.js's own
+ * client runtime to navigate — a generic catch here must let it through
+ * rather than reporting the (successful) save as a failure. */
+function isNextRedirectError(err: unknown): boolean {
+  return (
+    !!err &&
+    typeof err === "object" &&
+    "digest" in err &&
+    typeof (err as { digest?: unknown }).digest === "string" &&
+    (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+  );
+}
 
 interface ProductFormProps {
   id?: string;
@@ -30,12 +44,20 @@ export function ProductForm({ id, initial }: ProductFormProps) {
     globalStock: initial?.globalStock ?? 0,
   });
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="flex max-w-lg flex-col gap-4">
+      {error && <StatusCard tone="danger" label="Couldn't save" title={error} />}
       <div className="flex gap-2">
         {KINDS.map((k) => (
-          <button key={k} type="button" onClick={() => setForm({ ...form, kind: k })}>
+          <button
+            key={k}
+            type="button"
+            aria-pressed={form.kind === k}
+            onClick={() => setForm({ ...form, kind: k })}
+            className="inline-flex min-h-11 items-center"
+          >
             <Chip variant={form.kind === k ? "selected" : "default"}>{k}</Chip>
           </button>
         ))}
@@ -99,10 +121,20 @@ export function ProductForm({ id, initial }: ProductFormProps) {
         onChange={(e) => setForm({ ...form, globalStock: Number(e.target.value) })}
       />
       <div className="flex gap-2">
-        <button type="button" onClick={() => setForm({ ...form, bestSeller: !form.bestSeller })}>
+        <button
+          type="button"
+          aria-pressed={form.bestSeller}
+          onClick={() => setForm({ ...form, bestSeller: !form.bestSeller })}
+          className="inline-flex min-h-11 items-center"
+        >
           <Chip variant={form.bestSeller ? "selected" : "default"}>Best seller</Chip>
         </button>
-        <button type="button" onClick={() => setForm({ ...form, isNew: !form.isNew })}>
+        <button
+          type="button"
+          aria-pressed={form.isNew}
+          onClick={() => setForm({ ...form, isNew: !form.isNew })}
+          className="inline-flex min-h-11 items-center"
+        >
           <Chip variant={form.isNew ? "selected" : "default"}>New</Chip>
         </button>
       </div>
@@ -111,7 +143,17 @@ export function ProductForm({ id, initial }: ProductFormProps) {
         loading={pending}
         loadingLabel="Saving…"
         disabled={!form.name || !form.slug}
-        onClick={() => startTransition(() => saveProductAction(id ?? null, form))}
+        onClick={() => {
+          setError(null);
+          startTransition(async () => {
+            try {
+              await saveProductAction(id ?? null, form);
+            } catch (err) {
+              if (isNextRedirectError(err)) throw err;
+              setError("Couldn't save this product. Check the fields and try again.");
+            }
+          });
+        }}
       >
         Save (draft)
       </Button>

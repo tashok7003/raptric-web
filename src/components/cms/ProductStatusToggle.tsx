@@ -14,23 +14,35 @@ const TONE: Record<string, string> = {
 export function ProductStatusToggle({ id, status }: { id: string; status: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const next = status === "LIVE" ? "DRAFT" : "LIVE";
+
+  function handleClick() {
+    const verb = next === "DRAFT" ? "Un-publish" : "Publish";
+    if (!window.confirm(`${verb} this product? It will ${next === "DRAFT" ? "come off" : "go live on"} the storefront immediately.`)) {
+      return;
+    }
+    startTransition(async () => {
+      await setProductStatusAction(id, next);
+      router.refresh();
+    });
+  }
 
   return (
     <button
       type="button"
       disabled={pending}
-      onClick={() =>
-        startTransition(async () => {
-          await setProductStatusAction(id, status === "LIVE" ? "DRAFT" : "LIVE");
-          router.refresh();
-        })
-      }
-      className={cn(
-        "rounded-[999px] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.04em]",
-        TONE[status],
-      )}
+      onClick={handleClick}
+      aria-label={`${status} — click to ${next === "DRAFT" ? "un-publish" : "publish"}`}
+      className="grid min-h-11 min-w-11 place-items-center rounded-[999px] border border-transparent px-1 hover:border-[var(--color-border)] hover:bg-surface-sunk disabled:opacity-50"
     >
-      {status}
+      <span
+        className={cn(
+          "rounded-[999px] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.04em]",
+          TONE[status],
+        )}
+      >
+        {status}
+      </span>
     </button>
   );
 }

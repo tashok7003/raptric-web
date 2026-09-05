@@ -9,6 +9,12 @@ async function main() {
   // eBikes — EMI-first, per 4b's card reasoning. Placeholders per the
   // wireframe's own admission (turn 9 note): "L27+/L27/X26/M22 are my
   // placeholders" pending the real catalogue.
+  // Stock studio shots — placeholders until the real catalogue photography
+  // lands, same spirit as the price points above (turn 9 note).
+  const HERO_SILVER = "https://images.unsplash.com/photo-1571068316344-75bc76f77890?q=80&w=1200&auto=format&fit=crop";
+  const HERO_TEAL = "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=1200&auto=format&fit=crop";
+  const HERO_ORANGE = "https://images.unsplash.com/photo-1571333250630-f0230c320b6d?q=80&w=1200&auto=format&fit=crop";
+
   const ebikes = [
     {
       slug: "l27-plus",
@@ -18,6 +24,7 @@ async function main() {
       emiMonthly: 1458,
       rangeKm: 60,
       bestSeller: true,
+      heroImage: HERO_SILVER,
     },
     {
       slug: "l27",
@@ -26,6 +33,7 @@ async function main() {
       price: 32000,
       emiMonthly: 1333,
       rangeKm: 55,
+      heroImage: HERO_TEAL,
     },
     {
       slug: "x26",
@@ -35,15 +43,16 @@ async function main() {
       emiMonthly: 1229,
       rangeKm: 50,
       bestSeller: true,
+      heroImage: HERO_ORANGE,
     },
-    { slug: "m18", name: "RAPTRIC M18", mrp: 27500, price: 26500, emiMonthly: 1104, rangeKm: 45 },
-    { slug: "l27-pro", name: "RAPTRIC L27 Pro", mrp: 41000, price: 39500, emiMonthly: 1646, rangeKm: 65 },
+    { slug: "m18", name: "RAPTRIC M18", mrp: 27500, price: 26500, emiMonthly: 1104, rangeKm: 45, heroImage: HERO_SILVER },
+    { slug: "l27-pro", name: "RAPTRIC L27 Pro", mrp: 41000, price: 39500, emiMonthly: 1646, rangeKm: 65, heroImage: HERO_ORANGE },
   ];
 
   for (const b of ebikes) {
     await db.productModel.upsert({
       where: { slug: b.slug },
-      update: {},
+      update: { heroImage: b.heroImage },
       create: {
         slug: b.slug,
         kind: "EBIKE",
@@ -54,6 +63,7 @@ async function main() {
         emiTenureMonths: 24,
         rangeKm: b.rangeKm,
         bestSeller: b.bestSeller ?? false,
+        heroImage: b.heroImage,
         globalStock: 40,
         status: "LIVE",
         publishedAt: new Date(),
@@ -62,13 +72,13 @@ async function main() {
   }
 
   const mbikes = [
-    { slug: "m22", name: "RAPTRIC M22", price: 18500, gears: 21, wheelSize: '27.5"' },
-    { slug: "m14", name: "RAPTRIC M14", price: 14500, gears: 18, wheelSize: '26"' },
+    { slug: "m22", name: "RAPTRIC M22", price: 18500, gears: 21, wheelSize: '27.5"', heroImage: HERO_TEAL },
+    { slug: "m14", name: "RAPTRIC M14", price: 14500, gears: 18, wheelSize: '26"', heroImage: HERO_SILVER },
   ];
   for (const b of mbikes) {
     await db.productModel.upsert({
       where: { slug: b.slug },
-      update: {},
+      update: { heroImage: b.heroImage },
       create: {
         slug: b.slug,
         kind: "MBIKE",
@@ -77,6 +87,7 @@ async function main() {
         price: b.price,
         gears: b.gears,
         wheelSize: b.wheelSize,
+        heroImage: b.heroImage,
         globalStock: 30,
         status: "LIVE",
         publishedAt: new Date(),

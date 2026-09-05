@@ -39,10 +39,20 @@ export function ServiceabilityEditor({ rows }: { rows: Row[] }) {
 
       <Field label="Pincode" value={pincode} onChange={(e) => setPincode(e.target.value)} />
       <div className="flex gap-2">
-        <button type="button" onClick={() => setServiceable(!serviceable)}>
+        <button
+          type="button"
+          aria-pressed={serviceable}
+          onClick={() => setServiceable(!serviceable)}
+          className="inline-flex min-h-11 items-center"
+        >
           <Chip variant={serviceable ? "selected" : "default"}>Serviceable</Chip>
         </button>
-        <button type="button" onClick={() => setFreeDelivery(!freeDelivery)}>
+        <button
+          type="button"
+          aria-pressed={freeDelivery}
+          onClick={() => setFreeDelivery(!freeDelivery)}
+          className="inline-flex min-h-11 items-center"
+        >
           <Chip variant={freeDelivery ? "selected" : "default"}>Free delivery</Chip>
         </button>
       </div>

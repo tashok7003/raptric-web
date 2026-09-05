@@ -106,6 +106,7 @@ export default async function BikesListingPage({
                 slug: b.slug,
                 name: b.name,
                 kind: b.kind,
+                image: b.heroImage,
                 bestSeller: b.bestSeller,
                 isNew: b.isNew,
                 price: b.price,

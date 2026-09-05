@@ -1,13 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CalendarClock, CheckCircle2 } from "lucide-react";
 import { addToCartAction } from "@/lib/actions/cart";
 import { Button } from "@/components/ui/Button";
 
 interface AddToCartBarProps {
   modelId: string;
+  modelSlug: string;
   name: string;
   priceLabel: string;
   subLabel: string;
@@ -16,9 +18,12 @@ interface AddToCartBarProps {
 
 // 2d/1f — sticky buy bar, bottom third on mobile; same "Add to cart"
 // action the hero button calls, so the PDP has exactly one purchase path
-// wired to two entry points.
+// wired to two entry points. The test-ride link isn't a purchase path —
+// it's the only way to reach it on mobile at all, since the hero's own
+// test-ride link is md:flex-only.
 export function AddToCartBar({
   modelId,
+  modelSlug,
   name,
   priceLabel,
   subLabel,
@@ -46,6 +51,13 @@ export function AddToCartBar({
           </span>
           <span className="text-[11px] text-ink-muted">{subLabel}</span>
         </div>
+        <Link
+          href={`/test-ride?model=${modelSlug}`}
+          aria-label="Book a test ride"
+          className="grid size-11 shrink-0 place-items-center rounded-full border border-[var(--color-border)] hover:bg-surface-sunk"
+        >
+          <CalendarClock className="size-5 text-ink" aria-hidden />
+        </Link>
         {outOfStock ? (
           <Button variant="secondary" className="ml-auto flex-1">
             Notify me

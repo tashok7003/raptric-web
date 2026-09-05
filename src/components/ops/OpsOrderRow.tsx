@@ -1,10 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { advanceOrderStatusAction } from "@/lib/actions/order";
 import { NEXT_ORDER_STATUS } from "@/lib/orderStatus";
+import { Button } from "@/components/ui/Button";
 
 const TERMINAL = new Set(["DELIVERED", "CANCELLED", "RETURNED"]);
 const LATE_DAYS = 6;
@@ -27,8 +28,16 @@ export function OpsOrderRow({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
-  const ageDays = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
-  const late = !TERMINAL.has(status) && ageDays > LATE_DAYS;
+  // Date.now() can't be read during render — it'd differ between the
+  // server's render and the client's first render, tripping a hydration
+  // mismatch on the "late" badge. Deferring to an effect keeps them in
+  // sync; the badge simply isn't shown until a moment after mount.
+  const [late, setLate] = useState(false);
+  useEffect(() => {
+    const ageDays = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
+    setLate(!TERMINAL.has(status) && ageDays > LATE_DAYS);
+  }, [createdAt, status]);
+
   const hasNext = !!NEXT_ORDER_STATUS[status];
 
   return (
@@ -49,19 +58,18 @@ export function OpsOrderRow({
       </td>
       <td className="py-2 text-right">
         {hasNext && (
-          <button
-            type="button"
-            disabled={pending}
+          <Button
+            variant="ghost"
+            loading={pending}
             onClick={() =>
               startTransition(async () => {
                 await advanceOrderStatusAction(orderId);
                 router.refresh();
               })
             }
-            className="text-action hover:underline disabled:opacity-50"
           >
             Advance
-          </button>
+          </Button>
         )}
       </td>
     </tr>

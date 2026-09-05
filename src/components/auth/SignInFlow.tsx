@@ -127,7 +127,7 @@ export function SignInFlow() {
                 setCode("");
                 setError(null);
               }}
-              className="text-[13px] text-action hover:underline"
+              className="flex min-h-11 items-center text-[13px] text-action hover:underline"
             >
               Use a different number / resend
             </button>

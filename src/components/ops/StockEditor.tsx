@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setStoreStockAction } from "@/lib/actions/ops";
+import { Button } from "@/components/ui/Button";
 
 export function StockEditor({
   storeId,
@@ -31,23 +32,23 @@ export function StockEditor({
       )}
       <input
         type="number"
+        aria-label={`Stock count for ${modelName}`}
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
         className="w-16 rounded-[4px] border border-[var(--color-border)] px-2 py-1 text-[13px]"
       />
-      <button
-        type="button"
-        disabled={pending}
+      <Button
+        variant="ghost"
+        loading={pending}
         onClick={() =>
           startTransition(async () => {
             await setStoreStockAction(storeId, modelId, value);
             router.refresh();
           })
         }
-        className="text-[12px] font-semibold text-action hover:underline disabled:opacity-50"
       >
         Save
-      </button>
+      </Button>
     </div>
   );
 }

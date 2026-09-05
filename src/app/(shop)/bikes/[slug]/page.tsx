@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/db";
 import { Accordion } from "@/components/ui/Accordion";
 import { StatusCard } from "@/components/ui/StatusCard";
@@ -52,7 +53,18 @@ export default async function ProductDetailPage({
       </Link>
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
-        <div className="aspect-4/3 rounded-[var(--radius-card)] bg-surface-sunk" />
+        <div className="relative aspect-4/3 overflow-hidden rounded-[var(--radius-card)] bg-surface-sunk">
+          {model.heroImage ? (
+            <Image
+              src={model.heroImage}
+              alt={model.name}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+          ) : null}
+        </div>
 
         <div className="flex flex-col gap-3">
           {model.isNew && (
@@ -166,7 +178,9 @@ export default async function ProductDetailPage({
                   <ul className="flex flex-col gap-2">
                     {model.reviews.map((r) => (
                       <li key={r.id}>
-                        {"★".repeat(r.rating)}
+                        <span aria-label={`${r.rating} out of 5 stars`}>
+                          <span aria-hidden>{"★".repeat(r.rating)}</span>
+                        </span>
                         {r.body && <p className="mt-1">{r.body}</p>}
                       </li>
                     ))}
@@ -196,6 +210,7 @@ export default async function ProductDetailPage({
 
       <AddToCartBar
         modelId={model.id}
+        modelSlug={model.slug}
         name={model.name}
         priceLabel={
           model.kind === "EBIKE" && model.emiMonthly

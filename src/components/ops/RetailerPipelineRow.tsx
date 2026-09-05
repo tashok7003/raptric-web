@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { setRetailerStatusAction } from "@/lib/actions/retailer";
+import { Button } from "@/components/ui/Button";
 
 const NEXT: Record<string, "TERRITORY_CHECKED" | "DOCS" | "APPROVED" | "LIVE"> = {
   APPLIED: "TERRITORY_CHECKED",
@@ -35,36 +36,38 @@ export function RetailerPipelineRow({
       <td className="py-2 text-ink-muted">{territoryPin}</td>
       <td className="py-2 text-ink-muted">{status.replaceAll("_", " ")}</td>
       <td className="py-2 text-right">
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-2">
           {next && (
-            <button
-              type="button"
-              disabled={pending}
+            <Button
+              variant="ghost"
+              loading={pending}
               onClick={() =>
                 startTransition(async () => {
                   await setRetailerStatusAction(id, next);
                   router.refresh();
                 })
               }
-              className="text-action hover:underline disabled:opacity-50"
             >
               Advance
-            </button>
+            </Button>
           )}
           {status !== "REJECTED" && status !== "LIVE" && (
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() =>
+            <Button
+              variant="ghost"
+              loading={pending}
+              className="text-danger hover:text-danger"
+              onClick={() => {
+                if (!window.confirm(`Reject ${name}'s retailer application? This can't be undone from here.`)) {
+                  return;
+                }
                 startTransition(async () => {
                   await setRetailerStatusAction(id, "REJECTED");
                   router.refresh();
-                })
-              }
-              className="text-danger hover:underline disabled:opacity-50"
+                });
+              }}
             >
               Reject
-            </button>
+            </Button>
           )}
         </div>
       </td>

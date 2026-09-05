@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Field } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
@@ -59,7 +59,11 @@ export function TestRideFlow({
     null,
   );
 
-  const slots = useMemo(nextSlots, []);
+  // Deferred to an effect rather than computed during render: `new Date()`
+  // read at render time can differ between the server's render and the
+  // client's first render, which is a hydration mismatch risk.
+  const [slots, setSlots] = useState<Date[]>([]);
+  useEffect(() => setSlots(nextSlots()), []);
   const selectedModel = models.find((m) => m.id === modelId);
   const selectedStore = stores.find((s) => s.id === storeId);
 

@@ -17,30 +17,32 @@ export default async function OpsOrdersPage() {
   return (
     <div>
       <h1 className="font-body text-[18px] font-bold text-ink">Orders</h1>
-      <table className="mt-4 w-full border-collapse text-[13px]">
-        <thead>
-          <tr className="border-b border-[var(--color-border)] text-left text-ink-muted">
-            <th className="py-2">Order</th>
-            <th className="py-2">Rider</th>
-            <th className="py-2">Items</th>
-            <th className="py-2">Status</th>
-            <th className="py-2"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((o) => (
-            <OpsOrderRow
-              key={o.id}
-              orderId={o.id}
-              orderNo={o.orderNo}
-              rider={o.user.name ?? o.user.phone}
-              items={o.items.map((i) => `${i.quantity}× ${i.model.name}`).join(", ")}
-              status={o.status}
-              createdAt={o.createdAt.toISOString()}
-            />
-          ))}
-        </tbody>
-      </table>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[640px] border-collapse text-[13px]">
+          <thead>
+            <tr className="border-b border-[var(--color-border)] text-left text-ink-muted">
+              <th className="py-2">Order</th>
+              <th className="py-2">Rider</th>
+              <th className="py-2">Items</th>
+              <th className="py-2">Status</th>
+              <th className="py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((o) => (
+              <OpsOrderRow
+                key={o.id}
+                orderId={o.id}
+                orderNo={o.orderNo}
+                rider={o.user.name ?? o.user.phone}
+                items={o.items.map((i) => `${i.quantity}× ${i.model.name}`).join(", ")}
+                status={o.status}
+                createdAt={o.createdAt.toISOString()}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
