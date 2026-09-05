@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { Chip } from "@/components/ui/Chip";
 import { CompareTray } from "@/components/listing/CompareTray";
+import { CompareCounter } from "@/components/listing/CompareCounter";
+import { RideFinder } from "@/components/listing/RideFinder";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +21,11 @@ const BUDGET_RANGES: Record<string, [number, number]> = {
 };
 
 // Listing (1e) — filters that match how the 60% decide: price, range,
-// gears, stock near me. The two-question picker (2b) was cut for v1
-// (12c) — 11 SKUs don't justify it yet — so this list is the one
-// discovery aid.
+// gears, stock near me. The two-question picker (2b, RideFinder) was cut
+// for v1 originally (12c: "11 SKUs don't justify it yet"), reinstated in
+// a minimal form per the competitive audit (turn 15) — it reuses these
+// same query params rather than inventing new recommendation logic, so
+// the cost of having it is low even at today's catalog size.
 export default async function BikesListingPage({
   searchParams,
 }: {
@@ -52,12 +56,15 @@ export default async function BikesListingPage({
       <p className="text-[13px] text-ink-muted">
         Home / Shop / {kind === "EBIKE" ? "eBikes" : "mBikes"}
       </p>
-      <div className="mt-1 flex items-baseline justify-between">
+      <div className="mt-1 flex items-baseline justify-between gap-3">
         <h1 className="font-body text-[22px] font-semibold text-ink">
           {kind === "EBIKE" ? "eBikes" : "mBikes"} · {bikes.length} model
           {bikes.length === 1 ? "" : "s"}
         </h1>
+        <CompareCounter />
       </div>
+
+      <RideFinder />
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <FilterChip

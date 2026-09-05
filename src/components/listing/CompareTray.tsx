@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { getCompareIds } from "@/lib/compareTray";
+import { useCompareIds } from "@/lib/compareTray";
 import { springSheet, useReducedMotion } from "@/lib/motion";
 
 interface CompareTrayProps {
@@ -13,19 +12,8 @@ interface CompareTrayProps {
 // 1e/2a — floating tray, never nav-level. Shows across the listing and
 // PDP so a shopper can build a 2-3 model comparison as they browse.
 export function CompareTray({ names }: CompareTrayProps) {
-  const [ids, setIds] = useState<string[]>([]);
+  const ids = useCompareIds();
   const reduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    setIds(getCompareIds());
-    const onChange = () => setIds(getCompareIds());
-    window.addEventListener("raptric:compare-change", onChange);
-    window.addEventListener("storage", onChange);
-    return () => {
-      window.removeEventListener("raptric:compare-change", onChange);
-      window.removeEventListener("storage", onChange);
-    };
-  }, []);
 
   return (
     <AnimatePresence>

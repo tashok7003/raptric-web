@@ -4,11 +4,12 @@ import Image from "next/image";
 import { db } from "@/lib/db";
 import { Accordion } from "@/components/ui/Accordion";
 import { StatusCard } from "@/components/ui/StatusCard";
-import { WARRANTY } from "@/lib/siteConfig";
+import { ProductCard } from "@/components/ui/ProductCard";
+import { WARRANTY, whatsappLink } from "@/lib/siteConfig";
 import { computeStockDisplay } from "@/lib/stock";
 import { AddToCartBar } from "@/components/pdp/AddToCartBar";
 import { AddToCartButton } from "@/components/pdp/AddToCartButton";
-import { ShieldCheck, Truck, PackageCheck } from "lucide-react";
+import { ShieldCheck, Truck, PackageCheck, MessageCircle, PlayCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +45,11 @@ export default async function ProductDetailPage({
   const compareWith = await db.productModel.findMany({
     where: { kind: model.kind, status: "LIVE", id: { not: model.id } },
     take: 2,
+  });
+
+  const accessories = await db.productModel.findMany({
+    where: { kind: "ACCESSORY", status: "LIVE" },
+    take: 4,
   });
 
   return (
@@ -113,6 +119,15 @@ export default async function ProductDetailPage({
             >
               Book a test ride
             </Link>
+            <a
+              href={whatsappLink(`Hi RAPTRIC, I have a question about the ${model.name}.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Ask about ${model.name} on WhatsApp`}
+              className="grid size-11 shrink-0 place-items-center rounded-[var(--radius-control)] border-[1.5px] border-ink hover:bg-surface-sunk"
+            >
+              <MessageCircle className="size-5 text-ink" aria-hidden />
+            </a>
           </div>
 
           <StatusCard
@@ -192,6 +207,29 @@ export default async function ProductDetailPage({
         />
       </section>
 
+      {/* Assembly answered in place — the single most-asked question in
+          the real FAQ, previously only findable by leaving the PDP
+          (competitive audit, turn 15). Links to the real safety/manual
+          page rather than a video player with no real asset behind it. */}
+      <section className="mt-8 scroll-mt-20">
+        <Link
+          href="/support/safety"
+          className="flex items-center gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4 hover:border-ink"
+        >
+          <div className="grid size-16 shrink-0 place-items-center rounded-[var(--radius-card)] bg-surface-sunk">
+            <PlayCircle className="size-7 text-action" aria-hidden />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-body text-[15px] font-semibold text-ink">
+              90% assembled, ready to finish in ~30 minutes
+            </span>
+            <span className="text-[13px] text-ink-muted">
+              A step-by-step guided walkthrough — see the assembly &amp; safety guide →
+            </span>
+          </div>
+        </Link>
+      </section>
+
       {compareWith.length > 0 && (
         <section id="compare" className="mt-8 scroll-mt-20">
           <div className="flex items-baseline justify-between">
@@ -204,6 +242,30 @@ export default async function ProductDetailPage({
             >
               {compareWith.map((m) => m.name).join(" · ")} →
             </Link>
+          </div>
+        </section>
+      )}
+
+      {accessories.length > 0 && (
+        <section className="mt-8 scroll-mt-20">
+          <h2 className="mb-3 font-body text-[18px] font-bold text-ink">
+            Accessorize your ride
+          </h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {accessories.map((a) => (
+              <ProductCard
+                key={a.id}
+                product={{
+                  id: a.id,
+                  slug: a.slug,
+                  name: a.name,
+                  kind: a.kind,
+                  image: a.heroImage,
+                  price: a.price,
+                  mrp: a.mrp,
+                }}
+              />
+            ))}
           </div>
         </section>
       )}

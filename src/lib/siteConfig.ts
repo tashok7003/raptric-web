@@ -78,6 +78,15 @@ export const CANONICAL_CONTACT = {
   careLineHours: "Care line Mon–Sat, 10:00–19:00",
 };
 
+// WhatsApp is the dominant conversion channel at this price band in the
+// Indian market (competitive audit, turn 15) — CANONICAL_CONTACT.phone,
+// digits only, for wa.me links.
+export const WHATSAPP_NUMBER = "919380276355";
+
+export function whatsappLink(message: string) {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 // Real RAPTRIC socials (raptric.in) — @rideraptric everywhere.
 export const SOCIAL_LINKS = [
   { label: "Facebook", href: "https://www.facebook.com/rideraptric" },

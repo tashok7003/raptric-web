@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { CalendarClock, CheckCircle2 } from "lucide-react";
+import { CalendarClock, CheckCircle2, MessageCircle } from "lucide-react";
 import { addToCartAction } from "@/lib/actions/cart";
 import { Button } from "@/components/ui/Button";
+import { whatsappLink } from "@/lib/siteConfig";
 
 interface AddToCartBarProps {
   modelId: string;
@@ -44,13 +45,22 @@ export function AddToCartBar({
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t border-[var(--color-border)] bg-surface px-4 py-3 md:hidden">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <div className="flex flex-col leading-tight">
           <span className="font-display text-[16px] font-bold text-ink">
             {priceLabel}
           </span>
           <span className="text-[11px] text-ink-muted">{subLabel}</span>
         </div>
+        <a
+          href={whatsappLink(`Hi RAPTRIC, I have a question about the ${name}.`)}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Ask about ${name} on WhatsApp`}
+          className="grid size-11 shrink-0 place-items-center rounded-full border border-[var(--color-border)] hover:bg-surface-sunk"
+        >
+          <MessageCircle className="size-5 text-ink" aria-hidden />
+        </a>
         <Link
           href={`/test-ride?model=${modelSlug}`}
           aria-label="Book a test ride"
