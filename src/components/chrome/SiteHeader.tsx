@@ -7,6 +7,7 @@ import { Search, ShoppingCart, User, Menu, ChevronDown } from "lucide-react";
 import { NAV_ITEMS, SHOP_DROPDOWN, SUPPORT_DROPDOWN } from "@/lib/siteConfig";
 import type { ResolvedNavItem } from "@/lib/nav";
 import { Drawer } from "@/components/ui/Drawer";
+import { ThemeToggle } from "@/components/chrome/ThemeToggle";
 import { springGentle, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
@@ -99,6 +100,7 @@ export function SiteHeader({
         </nav>
 
         <div className="ml-auto flex items-center gap-1">
+          <ThemeToggle />
           <button
             type="button"
             aria-label="Search"

@@ -36,6 +36,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${archivo.variable} ${mukta.variable} h-full antialiased`}
     >
+      <head>
+        {/* Runs before paint so an explicit saved theme (ThemeToggle)
+            applies immediately — without this, the page would render in
+            the OS default for a frame, then flip once React hydrates. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('raptric:theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-surface text-ink">
         <a
           href="#main-content"
