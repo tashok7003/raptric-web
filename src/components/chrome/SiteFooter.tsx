@@ -6,19 +6,31 @@ import {
   LEGAL_LINKS,
   SOCIAL_LINKS,
 } from "@/lib/siteConfig";
+import type { Role } from "@/generated/prisma/enums";
 
 interface SiteFooterProps {
   variant?: "full" | "checkout";
+  role?: Role;
+}
+
+// "Track my order" meant two different things depending on who clicked
+// it: a rider's own consumer Order, or a retailer's WholesaleOrder — two
+// unrelated models with no shared identity. Hard-coding it to
+// /account/orders sent every retailer to a page that correctly (but
+// confusingly) told them they had no orders, right next to a dashboard
+// showing real ones.
+function orderTrackingHref(role?: Role) {
+  return role === "RETAILER" ? "/account/retailer" : "/account/orders";
 }
 
 // Chrome component, footer — 2a. "One definition, one source per field" —
 // hours/address/phone are read from CANONICAL_CONTACT everywhere, never
 // retyped. Checkout variant is legal-only, no marketing links (2a's
 // deliberate exception for the payment flow).
-export function SiteFooter({ variant = "full" }: SiteFooterProps) {
+export function SiteFooter({ variant = "full", role }: SiteFooterProps) {
   if (variant === "checkout") {
     return (
-      <footer className="border-t border-[var(--color-border)] bg-chrome px-4 py-4 text-chrome-muted">
+      <footer className="border-t border-[var(--color-border)] bg-chrome-bg px-4 py-4 text-chrome-muted">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-[11px]">
           <span>Secured by Razorpay</span>
           <span className="ml-auto flex gap-3">
@@ -35,7 +47,7 @@ export function SiteFooter({ variant = "full" }: SiteFooterProps) {
   }
 
   return (
-    <footer className="mt-auto bg-chrome px-4 py-8 text-chrome-muted">
+    <footer className="mt-auto bg-chrome-bg px-4 py-8 text-chrome-muted">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 md:grid-cols-4">
         {FOOTER_COLUMNS.map((col) => (
           <div key={col.heading} className="flex flex-col gap-2">
@@ -45,7 +57,7 @@ export function SiteFooter({ variant = "full" }: SiteFooterProps) {
             {col.links.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={link.label === "Track my order" ? orderTrackingHref(role) : link.href}
                 className="text-[13px] hover:text-white"
               >
                 {link.label}

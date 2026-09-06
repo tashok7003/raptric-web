@@ -3,17 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Search, ShoppingCart, User, Menu, ChevronDown } from "lucide-react";
+import { Search, User, Menu, ChevronDown } from "lucide-react";
 import { NAV_ITEMS, SHOP_DROPDOWN, SUPPORT_DROPDOWN } from "@/lib/siteConfig";
 import type { ResolvedNavItem } from "@/lib/nav";
 import { Drawer } from "@/components/ui/Drawer";
 import { ThemeToggle } from "@/components/chrome/ThemeToggle";
+import { MiniCart, type MiniCartItem } from "@/components/cart/MiniCart";
 import { springGentle, useReducedMotion } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 
 interface SiteHeaderProps {
   variant?: "full" | "checkout";
-  cartCount?: number;
+  cartItems?: MiniCartItem[];
   signedIn?: boolean;
   navItems?: ResolvedNavItem[];
 }
@@ -23,7 +24,7 @@ interface SiteHeaderProps {
 // nav-level nowhere (tray only, wired in the listing/PDP pages).
 export function SiteHeader({
   variant = "full",
-  cartCount = 0,
+  cartItems = [],
   signedIn = false,
   navItems = NAV_ITEMS as unknown as ResolvedNavItem[],
 }: SiteHeaderProps) {
@@ -44,8 +45,9 @@ export function SiteHeader({
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
+    <>
+      <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-surface/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
         <Link href="/" className="font-display text-[19px] font-bold text-ink">
           RAPTRIC
         </Link>
@@ -75,7 +77,7 @@ export function SiteHeader({
                     animate={{ opacity: 1, y: 0 }}
                     exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
                     transition={springGentle}
-                    className="absolute left-0 top-full flex min-w-48 flex-col gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-2 shadow-lg"
+                    className="absolute left-0 top-full flex min-w-48 flex-col gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-2 shadow-lg"
                   >
                     {(item.label === "Shop" ? SHOP_DROPDOWN : SUPPORT_DROPDOWN).map(
                       (link) => (
@@ -101,13 +103,13 @@ export function SiteHeader({
 
         <div className="ml-auto flex items-center gap-1">
           <ThemeToggle />
-          <button
-            type="button"
+          <Link
+            href="/search"
             aria-label="Search"
             className="grid size-11 place-items-center rounded-full hover:bg-surface-sunk"
           >
             <Search className="size-5" aria-hidden />
-          </button>
+          </Link>
           <Link
             href={signedIn ? "/account" : "/sign-in"}
             aria-label="Account"
@@ -115,18 +117,7 @@ export function SiteHeader({
           >
             <User className="size-5" aria-hidden />
           </Link>
-          <Link
-            href="/cart"
-            aria-label={`Cart, ${cartCount} items`}
-            className="relative grid size-11 place-items-center rounded-full hover:bg-surface-sunk"
-          >
-            <ShoppingCart className="size-5" aria-hidden />
-            {cartCount > 0 && (
-              <span className="absolute right-1.5 top-1.5 grid size-4 place-items-center rounded-full bg-action text-[10px] font-semibold text-white">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+          <MiniCart items={cartItems} />
           <button
             type="button"
             aria-label="Open menu"
@@ -137,7 +128,13 @@ export function SiteHeader({
           </button>
         </div>
       </div>
+      </header>
 
+      {/* Rendered as a sibling of <header>, not a child — the header has
+          backdrop-blur, and CSS backdrop-filter creates a containing block
+          for position:fixed descendants, which was silently clipping this
+          full-screen drawer (and its scrim) to the header's own ~68px
+          height instead of the viewport. */}
       <Drawer
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
@@ -164,6 +161,6 @@ export function SiteHeader({
           Book a test ride
         </Link>
       </Drawer>
-    </header>
+    </>
   );
 }

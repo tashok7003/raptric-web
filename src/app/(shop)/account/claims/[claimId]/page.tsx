@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -13,9 +13,10 @@ export default async function ClaimDetailPage({
 }) {
   const { claimId } = await params;
   const user = await getCurrentUser();
-  const isStaff = user?.role === "SUPPORT_AGENT" || user?.role === "ADMIN";
+  if (!user) redirect("/sign-in");
+  const isStaff = user.role === "SUPPORT_AGENT" || user.role === "ADMIN";
   const claim = await db.claim.findFirst({
-    where: isStaff ? { id: claimId } : { id: claimId, userId: user!.id },
+    where: isStaff ? { id: claimId } : { id: claimId, userId: user.id },
     include: { bike: { include: { model: true } } },
   });
   if (!claim) notFound();

@@ -30,7 +30,7 @@ export function RideFinder() {
   }
 
   return (
-    <div className="mt-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white">
+    <div className="mt-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised">
       <button
         type="button"
         onClick={() => setOpen(!open)}

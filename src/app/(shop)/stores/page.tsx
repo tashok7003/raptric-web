@@ -27,7 +27,7 @@ export default async function StoreListPage() {
             <Link
               key={store.id}
               href={`/stores/${store.slug}`}
-              className="flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4 hover:border-ink"
+              className="flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4 hover:border-ink"
             >
               <div className="flex flex-col gap-1">
                 <span className="font-body text-[15px] font-semibold text-ink">

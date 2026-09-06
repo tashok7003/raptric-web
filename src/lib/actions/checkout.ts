@@ -15,6 +15,7 @@ function generateOrderNo() {
 export interface StartCheckoutInput {
   name: string;
   phone: string;
+  email?: string;
   pincode: string;
   addressLine: string;
   city: string;
@@ -40,8 +41,8 @@ export async function startCheckoutAction(input: StartCheckoutInput) {
 
   const user = await db.user.upsert({
     where: { phone: input.phone },
-    update: { name: input.name },
-    create: { phone: input.phone, name: input.name },
+    update: { name: input.name, ...(input.email ? { email: input.email } : {}) },
+    create: { phone: input.phone, name: input.name, email: input.email },
   });
 
   const address = await db.address.create({

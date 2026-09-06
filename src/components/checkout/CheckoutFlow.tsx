@@ -21,12 +21,22 @@ import { EMI } from "@/lib/siteConfig";
 type Step = "delivery" | "payment" | "outcome";
 type PaymentMethod = "UPI" | "CARD" | "EMI";
 
+interface CheckoutItem {
+  id: string;
+  name: string;
+  image: string | null;
+  price: number;
+  quantity: number;
+}
+
 export function CheckoutFlow({
   subtotal,
   emiEligible,
+  items,
 }: {
   subtotal: number;
   emiEligible: boolean;
+  items: CheckoutItem[];
 }) {
   const router = useRouter();
   const reduceMotion = useReducedMotion();
@@ -37,6 +47,7 @@ export function CheckoutFlow({
   const [form, setForm] = useState({
     name: "",
     phone: "",
+    email: "",
     pincode: "",
     addressLine: "",
     city: "",
@@ -117,6 +128,28 @@ export function CheckoutFlow({
         <StatusCard tone="danger" label="Couldn't continue" title={error} />
       )}
 
+      {/* Visible through every step — Delivery and Payment used to show
+          only a raw total with no product context at all. */}
+      <div className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3">
+        {items.map((item) => (
+          <div key={item.id} className="flex items-center gap-3">
+            <div className="relative size-12 shrink-0 overflow-hidden rounded-[6px] bg-surface-sunk">
+              {item.image && (
+                // eslint-disable-next-line @next/next/no-img-element -- small fixed-size thumbnail, next/image overhead isn't worth it here
+                <img src={item.image} alt="" className="size-full object-cover" />
+              )}
+            </div>
+            <div className="flex-1 text-[13px]">
+              <p className="font-semibold text-ink">{item.name}</p>
+              <p className="text-ink-muted">Qty {item.quantity}</p>
+            </div>
+            <span className="text-[13px] font-semibold tabular-nums text-ink">
+              ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+            </span>
+          </div>
+        ))}
+      </div>
+
       <AnimatePresence mode="wait" initial={false}>
       {step === "delivery" && (
         <motion.div
@@ -137,6 +170,13 @@ export function CheckoutFlow({
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             hint="We'll send order updates here — no account required."
+          />
+          <Field
+            label="Email (optional)"
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            hint="For your invoice and order confirmation — you can still track by phone without it."
           />
           <Field
             label="Address"

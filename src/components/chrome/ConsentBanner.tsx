@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { setConsentAction } from "@/lib/actions/consent";
 import { springSheet, useReducedMotion } from "@/lib/motion";
+import { useHasBottomBar } from "@/lib/stickyBar";
+import { cn } from "@/lib/cn";
 
 // 11e — DPDP consent gate. 8d's analytics can't fire before this
 // exists (12c), so the banner is the first thing that has to ship, not
@@ -14,6 +16,17 @@ export function ConsentBanner({ initiallyShown }: { initiallyShown: boolean }) {
   const [visible, setVisible] = useState(initiallyShown);
   const [pending, startTransition] = useTransition();
   const reduceMotion = useReducedMotion();
+  const hasBottomBar = useHasBottomBar();
+
+  // Reserve scroll room below the page's normal content while this fixed
+  // banner covers the bottom of the viewport — otherwise, on a page short
+  // enough to fit in one screen (e.g. the CMS product editor), whatever
+  // renders last (a Save button) sits directly under the banner with no
+  // way to scroll it into the clear.
+  useEffect(() => {
+    document.documentElement.style.setProperty("--consent-banner-space", visible ? "88px" : "0px");
+    return () => document.documentElement.style.setProperty("--consent-banner-space", "0px");
+  }, [visible]);
 
   function choose(choice: "accepted" | "necessary_only") {
     startTransition(async () => {
@@ -30,7 +43,10 @@ export function ConsentBanner({ initiallyShown }: { initiallyShown: boolean }) {
           animate={{ y: 0, opacity: 1 }}
           exit={reduceMotion ? undefined : { y: 80, opacity: 0 }}
           transition={springSheet}
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-border)] bg-surface px-4 py-4 shadow-2xl"
+          className={cn(
+            "fixed inset-x-0 z-50 border-t border-[var(--color-border)] bg-surface px-4 py-4 shadow-2xl",
+            hasBottomBar ? "bottom-[68px] md:bottom-0" : "bottom-0",
+          )}
         >
           <div className="mx-auto flex max-w-4xl flex-col items-start gap-3 sm:flex-row sm:items-center">
             <p className="text-[13px] text-ink-muted">

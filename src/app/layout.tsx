@@ -35,6 +35,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${archivo.variable} ${mukta.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
         {/* Runs before paint so an explicit saved theme (ThemeToggle)

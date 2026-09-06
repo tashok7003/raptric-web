@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { Chip } from "@/components/ui/Chip";
 import { CompareTray } from "@/components/listing/CompareTray";
-import { CompareCounter } from "@/components/listing/CompareCounter";
 import { RideFinder } from "@/components/listing/RideFinder";
 
 export const dynamic = "force-dynamic";
@@ -49,20 +48,15 @@ export default async function BikesListingPage({
         : { price: "asc" },
   });
 
-  const names = Object.fromEntries(bikes.map((b) => [b.id, b.name]));
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 pb-24">
       <p className="text-[13px] text-ink-muted">
         Home / Shop / {kind === "EBIKE" ? "eBikes" : "mBikes"}
       </p>
-      <div className="mt-1 flex items-baseline justify-between gap-3">
-        <h1 className="font-body text-[22px] font-semibold text-ink">
-          {kind === "EBIKE" ? "eBikes" : "mBikes"} · {bikes.length} model
-          {bikes.length === 1 ? "" : "s"}
-        </h1>
-        <CompareCounter />
-      </div>
+      <h1 className="mt-1 font-body text-[22px] font-semibold text-ink">
+        {kind === "EBIKE" ? "eBikes" : "mBikes"} · {bikes.length} model
+        {bikes.length === 1 ? "" : "s"}
+      </h1>
 
       <RideFinder />
 
@@ -130,7 +124,7 @@ export default async function BikesListingPage({
         </div>
       )}
 
-      <CompareTray names={names} />
+      <CompareTray />
     </div>
   );
 }

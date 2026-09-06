@@ -39,10 +39,22 @@ export function clearCompare() {
   setCompareIds([]);
 }
 
+/** Drops any id not in `validIds` from the stored selection — for ids
+ * that no longer resolve to a real product (deleted, or from a stale
+ * browser that had them selected before a reseed/recreate changed their
+ * underlying row). Without this, a rider who selected two now-gone
+ * products is stuck forever with a tray showing raw database ids and a
+ * /compare page that silently renders nothing. */
+export function pruneCompareIds(validIds: string[]) {
+  const ids = getCompareIds();
+  const next = ids.filter((id) => validIds.includes(id));
+  if (next.length !== ids.length) setCompareIds(next);
+}
+
 export const COMPARE_MAX = MAX;
 
 /** Live compare-selection state, kept in sync across every mounted
- * consumer (CompareTray, CompareCounter, ...) via the same events
+ * consumer (CompareTray, ProductCard's toggle, ...) via the same events
  * toggleCompare/clearCompare dispatch. */
 export function useCompareIds(): string[] {
   const [ids, setIds] = useState<string[]>([]);

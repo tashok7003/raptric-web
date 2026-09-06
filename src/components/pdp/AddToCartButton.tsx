@@ -38,8 +38,18 @@ export function AddToCartButton({
         startTransition(async () => {
           await addToCartAction(modelId);
           setAdded(true);
-          router.refresh();
-          setTimeout(() => setAdded(false), 1500);
+          // router.refresh() re-renders this button's own server-rendered
+          // parent, which was replacing this component's instance (and
+          // its `added` state) before the confirmation ever got a chance
+          // to paint — the button silently went straight back to "Add to
+          // cart" with no visible feedback that anything happened.
+          // Deferring the refresh until after the confirmation's shown
+          // its full duration avoids the button being replaced out from
+          // under itself.
+          setTimeout(() => {
+            setAdded(false);
+            router.refresh();
+          }, 1500);
         })
       }
     >

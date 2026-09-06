@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import { EmptyState } from "@/components/account/EmptyState";
@@ -8,8 +9,9 @@ import { EmptyState } from "@/components/account/EmptyState";
 // a dot on Account, not a sixth nav slot or a bell icon.
 export default async function UpdatesPage() {
   const user = await getCurrentUser();
+  if (!user) redirect("/sign-in");
   const notifications = await db.notification.findMany({
-    where: { userId: user!.id },
+    where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
@@ -28,7 +30,7 @@ export default async function UpdatesPage() {
       {notifications.map((n) => (
         <li
           key={n.id}
-          className="flex items-start gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3"
+          className="flex items-start gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3"
         >
           {!n.readAt && (
             <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-action" />

@@ -33,7 +33,7 @@ export function JournalForm({
         onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
       />
       <div className="flex flex-col gap-1">
-        <label className="font-body text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-muted">
+        <label className="font-body text-label uppercase text-ink-muted">
           Body
         </label>
         <textarea
@@ -44,7 +44,7 @@ export function JournalForm({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="font-body text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-muted">
+        <label className="font-body text-label uppercase text-ink-muted">
           Product callout
         </label>
         <select

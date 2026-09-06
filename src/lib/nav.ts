@@ -22,5 +22,5 @@ export async function getNavItems(): Promise<ResolvedNavItem[]> {
   if (rows.length === 0) {
     return NAV_ITEMS.map((i) => ({ ...i }));
   }
-  return rows.map((r) => ({ label: r.label, href: r.href, hasDropdown: false }));
+  return rows.map((r) => ({ label: r.label, href: r.href, hasDropdown: r.hasDropdown }));
 }

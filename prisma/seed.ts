@@ -11,9 +11,23 @@ async function main() {
   // placeholders" pending the real catalogue.
   // Stock studio shots — placeholders until the real catalogue photography
   // lands, same spirit as the price points above (turn 9 note).
+  // One distinct photo per SKU — three products used to share HERO_SILVER
+  // and two shared HERO_ORANGE, which read as fake/duplicated inventory
+  // when placed side by side at different prices.
+  //
+  // The first fix for this (HERO_SLATE/CHARCOAL/GRAPHITE) picked three
+  // Unsplash photo IDs that returned HTTP 200 but were never actually
+  // opened — a live audit found they render a motorcycle, a road-racing
+  // peloton, and an empty European street respectively, on an "eBikes for
+  // the daily commute" site. Every URL below has been downloaded and
+  // visually confirmed to show an actual (e-)bicycle before use.
   const HERO_SILVER = "https://images.unsplash.com/photo-1571068316344-75bc76f77890?q=80&w=1200&auto=format&fit=crop";
   const HERO_TEAL = "https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&w=1200&auto=format&fit=crop";
   const HERO_ORANGE = "https://images.unsplash.com/photo-1571333250630-f0230c320b6d?q=80&w=1200&auto=format&fit=crop";
+  const HERO_SLATE = "https://images.unsplash.com/photo-1579119099178-c0e502392c6d?q=80&w=1200&auto=format&fit=crop";
+  const HERO_CHARCOAL = "https://images.unsplash.com/photo-1608315757518-aa845d86e9bd?q=80&w=1200&auto=format&fit=crop";
+  const HERO_GRAPHITE = "https://images.unsplash.com/photo-1666359692855-676ac6c8df4c?q=80&w=1200&auto=format&fit=crop";
+  const HERO_RUST = "https://images.unsplash.com/photo-1571188654248-7a89213915f7?q=80&w=1200&auto=format&fit=crop";
 
   const ebikes = [
     {
@@ -45,8 +59,8 @@ async function main() {
       bestSeller: true,
       heroImage: HERO_ORANGE,
     },
-    { slug: "m18", name: "RAPTRIC M18", mrp: 27500, price: 26500, emiMonthly: 1104, rangeKm: 45, heroImage: HERO_SILVER },
-    { slug: "l27-pro", name: "RAPTRIC L27 Pro", mrp: 41000, price: 39500, emiMonthly: 1646, rangeKm: 65, heroImage: HERO_ORANGE },
+    { slug: "m18", name: "RAPTRIC M18", mrp: 27500, price: 26500, emiMonthly: 1104, rangeKm: 45, heroImage: HERO_SLATE },
+    { slug: "l27-pro", name: "RAPTRIC L27 Pro", mrp: 41000, price: 39500, emiMonthly: 1646, rangeKm: 65, heroImage: HERO_CHARCOAL },
   ];
 
   for (const b of ebikes) {
@@ -72,8 +86,8 @@ async function main() {
   }
 
   const mbikes = [
-    { slug: "m22", name: "RAPTRIC M22", price: 18500, gears: 21, wheelSize: '27.5"', heroImage: HERO_TEAL },
-    { slug: "m14", name: "RAPTRIC M14", price: 14500, gears: 18, wheelSize: '26"', heroImage: HERO_SILVER },
+    { slug: "m22", name: "RAPTRIC M22", price: 18500, gears: 21, wheelSize: '27.5"', heroImage: HERO_GRAPHITE },
+    { slug: "m14", name: "RAPTRIC M14", price: 14500, gears: 18, wheelSize: '26"', heroImage: HERO_RUST },
   ];
   for (const b of mbikes) {
     await db.productModel.upsert({
@@ -142,6 +156,99 @@ async function main() {
     update: { role: "ADMIN" },
     create: { phone: "+919999999999", name: "Admin", role: "ADMIN" },
   });
+
+  // Demo retailer login for the self-service dashboard at /account/retailer
+  // — a real partner account reaches RETAILER the same way any of the 20+
+  // BD-pipeline retailers would: apply via /retailers, get approved in
+  // /ops/retailers, then someone sets their user's role + retailerId.
+  const demoRetailer = await db.retailer.upsert({
+    where: { id: "retailer-demo" },
+    update: { status: "LIVE" },
+    create: {
+      id: "retailer-demo",
+      name: "Kothrud Cycle Hub",
+      ownerName: "Suresh Patil",
+      phone: "+919888888888",
+      status: "LIVE",
+      territoryPin: "411038",
+    },
+  });
+  await db.user.upsert({
+    where: { phone: "+919888888888" },
+    update: { role: "RETAILER", retailerId: demoRetailer.id },
+    create: {
+      phone: "+919888888888",
+      name: "Suresh Patil",
+      role: "RETAILER",
+      retailerId: demoRetailer.id,
+    },
+  });
+  const [wholesaleL27Plus, wholesaleM22] = await Promise.all([
+    db.productModel.findUnique({ where: { slug: "l27-plus" } }),
+    db.productModel.findUnique({ where: { slug: "m22" } }),
+  ]);
+  await db.wholesaleOrder.deleteMany({ where: { retailerId: demoRetailer.id } });
+  if (wholesaleL27Plus && wholesaleM22) {
+    await db.wholesaleOrder.createMany({
+      data: [
+        { retailerId: demoRetailer.id, modelId: wholesaleL27Plus.id, quantity: 10, consignment: true, status: "DELIVERED" },
+        { retailerId: demoRetailer.id, modelId: wholesaleM22.id, quantity: 5, consignment: false, status: "PENDING" },
+      ],
+    });
+  }
+
+  // Default homepage sections — matches the page's original hardcoded
+  // design exactly, so /cms/home starts from what's already live rather
+  // than a blank page an editor has to reconstruct from scratch.
+  const homeSections = [
+    {
+      id: "home-hero",
+      type: "HERO",
+      order: 0,
+      heading: "The commute, sorted.",
+      body: "₹35,000 becomes ₹1,458 a month — no-cost EMI on every RAPTRIC eBike, backed by a 5-year frame warranty and 20+ retail partners across Bengaluru.",
+      imageUrl: "https://images.unsplash.com/photo-1519583272095-6433daf26b6e?q=80&w=1920&auto=format&fit=crop",
+      ctaLabel: "Shop eBikes",
+      ctaHref: "/bikes?type=ebike",
+      configJson: JSON.stringify({ secondaryCtaLabel: "How EMI works", secondaryCtaHref: "/emi" }),
+    },
+    {
+      id: "home-stats",
+      type: "STAT_BAR",
+      order: 1,
+      configJson: JSON.stringify({
+        items: ["20+ retail partners", "4.4★ · 1,200+ riders", "60 km per charge", "5-yr frame warranty"],
+      }),
+    },
+    {
+      id: "home-products",
+      type: "PRODUCT_GRID",
+      order: 2,
+      heading: "eBikes & mBikes",
+      ctaLabel: "Compare all",
+      ctaHref: "/compare",
+      configJson: JSON.stringify({ kind: "ALL", limit: 8 }),
+    },
+  ];
+  for (const s of homeSections) {
+    const { id, ...data } = s;
+    await db.homeSection.upsert({ where: { id }, update: {}, create: { id, ...data } });
+  }
+
+  // Default nav — seeded as real NavItem rows (not left to the
+  // siteConfig.ts fallback) so /cms/nav has something to reorder/rename/
+  // remove from day one instead of showing an empty list standing in for
+  // a nav that already has 4 items live.
+  const navItems = [
+    { id: "nav-shop", label: "Shop", href: "/bikes", order: 0, hasDropdown: true },
+    { id: "nav-why-raptric", label: "Why RAPTRIC", href: "/why-raptric", order: 1, hasDropdown: false },
+    { id: "nav-find-a-store", label: "Find a Store", href: "/stores", order: 2, hasDropdown: false },
+    { id: "nav-support", label: "Support", href: "/support", order: 3, hasDropdown: true },
+  ];
+  for (const n of navItems) {
+    const { id, ...data } = n;
+    await db.navItem.upsert({ where: { id }, update: {}, create: { id, ...data } });
+  }
 
   for (const t of DLT_MESSAGE_TEMPLATES) {
     await db.messageTemplate.upsert({

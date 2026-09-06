@@ -53,8 +53,14 @@ export function ProductCard({ product, onNotifyMe }: ProductCardProps) {
     startTransition(async () => {
       await addToCartAction(product.id);
       setJustAdded(true);
-      router.refresh();
-      setTimeout(() => setJustAdded(false), 1500);
+      // Deferred for the same reason as AddToCartButton/AddToCartBar: an
+      // immediate router.refresh() re-rendered this card from its parent
+      // and reset justAdded before the confirmation ever painted, so the
+      // button silently reverted to "Add to cart" with no feedback.
+      setTimeout(() => {
+        setJustAdded(false);
+        router.refresh();
+      }, 1500);
     });
   }
 
@@ -71,7 +77,7 @@ export function ProductCard({ product, onNotifyMe }: ProductCardProps) {
     <motion.div
       whileHover={reduceMotion ? undefined : { y: -3 }}
       transition={springHover}
-      className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3"
+      className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3"
     >
       <Link
         href={`/${isAccessory ? "accessories" : "bikes"}/${product.slug}`}
@@ -190,7 +196,7 @@ export function ProductCard({ product, onNotifyMe }: ProductCardProps) {
 export function ProductCardSkeleton() {
   return (
     <div
-      className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3"
+      className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3"
       aria-hidden
     >
       <div className="aspect-4/3 animate-pulse rounded-[6px] bg-surface-sunk" />

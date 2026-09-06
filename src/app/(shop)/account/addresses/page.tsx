@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import { EmptyState } from "@/components/account/EmptyState";
@@ -5,7 +6,8 @@ import { EmptyState } from "@/components/account/EmptyState";
 // 8a — serviceability per address, amber when one falls out of service.
 export default async function AddressesPage() {
   const user = await getCurrentUser();
-  const addresses = await db.address.findMany({ where: { userId: user!.id } });
+  if (!user) redirect("/sign-in");
+  const addresses = await db.address.findMany({ where: { userId: user.id } });
 
   if (addresses.length === 0) {
     return (
@@ -21,7 +23,7 @@ export default async function AddressesPage() {
       {addresses.map((addr) => (
         <div
           key={addr.id}
-          className="flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4"
+          className="flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4"
         >
           <div className="flex flex-col gap-0.5">
             <span className="font-body text-[14px] font-semibold text-ink">

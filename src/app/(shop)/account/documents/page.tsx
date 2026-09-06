@@ -1,12 +1,14 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import { EmptyState } from "@/components/account/EmptyState";
 
 export default async function DocumentsPage() {
   const user = await getCurrentUser();
+  if (!user) redirect("/sign-in");
   const invoices = await db.invoice.findMany({
-    where: { order: { userId: user!.id } },
+    where: { order: { userId: user.id } },
     include: { order: true },
     orderBy: { createdAt: "desc" },
   });
@@ -25,7 +27,7 @@ export default async function DocumentsPage() {
       {invoices.map((inv) => (
         <div
           key={inv.id}
-          className="flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4"
+          className="flex items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4"
         >
           <div className="flex flex-col gap-0.5">
             <span className="font-body text-[14px] font-semibold text-ink">

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import { ClaimForm } from "@/components/claims/ClaimForm";
@@ -13,10 +13,11 @@ export default async function NewClaimPage({
 }) {
   const { bikeId } = await searchParams;
   const user = await getCurrentUser();
+  if (!user) redirect("/sign-in");
   if (!bikeId) notFound();
 
   const bike = await db.ownedBike.findFirst({
-    where: { id: bikeId, userId: user!.id },
+    where: { id: bikeId, userId: user.id },
     include: { model: true },
   });
   if (!bike) notFound();
@@ -26,7 +27,7 @@ export default async function NewClaimPage({
       <h1 className="font-body text-[18px] font-bold text-ink">
         Raise a claim — {bike.model.name}
       </h1>
-      <div className="mt-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3 text-[13px]">
+      <div className="mt-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3 text-[13px]">
         <span className="font-semibold text-ink-muted">Your coverage</span>
         <ul className="mt-1 flex flex-col gap-0.5">
           {WARRANTY.ladder.map((l) => {

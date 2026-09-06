@@ -7,6 +7,7 @@ import { CalendarClock, CheckCircle2, MessageCircle } from "lucide-react";
 import { addToCartAction } from "@/lib/actions/cart";
 import { Button } from "@/components/ui/Button";
 import { whatsappLink } from "@/lib/siteConfig";
+import { useRegisterBottomBar } from "@/lib/stickyBar";
 
 interface AddToCartBarProps {
   modelId: string;
@@ -33,13 +34,20 @@ export function AddToCartBar({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [added, setAdded] = useState(false);
+  useRegisterBottomBar();
 
   function handleAdd() {
     startTransition(async () => {
       await addToCartAction(modelId);
       setAdded(true);
-      router.refresh();
-      setTimeout(() => setAdded(false), 1500);
+      // See AddToCartButton for why the refresh is deferred: calling it
+      // immediately re-rendered this button's parent and reset `added`
+      // before the confirmation ever painted, so the bar silently went
+      // straight back to "Add to cart" with no visible feedback.
+      setTimeout(() => {
+        setAdded(false);
+        router.refresh();
+      }, 1500);
     });
   }
 

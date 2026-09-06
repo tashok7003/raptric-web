@@ -27,7 +27,7 @@ export default async function ComparePage({
         </h1>
         <p className="mt-2 text-[14px] text-ink-muted">
           Pick 2–3 models from the listing using the compare icon, and
-          they'll show up here.
+          they&apos;ll show up here.
         </p>
         <Link
           href="/bikes"
@@ -39,16 +39,58 @@ export default async function ComparePage({
     );
   }
 
-  const rows: { label: string; get: (m: (typeof models)[number]) => string }[] = [
-    { label: "Price", get: (m) => `₹${m.price.toLocaleString("en-IN")}` },
+  // Union of CMS-editable spec keys (src/components/cms/ProductForm.tsx)
+  // across the compared models — a spec set by an editor on any one of
+  // them becomes its own comparison row, rather than the fixed Price/EMI/
+  // Range/Gears set silently showing "—" across the board whenever the
+  // compared kind doesn't have that attribute (e.g. Gears for eBikes).
+  const specKeys = Array.from(
+    new Set(
+      models.flatMap((m) => {
+        try {
+          return Object.keys(JSON.parse(m.specsJson || "{}"));
+        } catch {
+          return [];
+        }
+      }),
+    ),
+  );
+  const modelSpecs = new Map(
+    models.map((m) => {
+      let specs: Record<string, string> = {};
+      try {
+        specs = JSON.parse(m.specsJson || "{}");
+      } catch {
+        // fall through with empty specs
+      }
+      return [m.id, specs];
+    }),
+  );
+
+  type Model = (typeof models)[number];
+  const rows: { label: string; get: (m: Model) => string }[] = [
+    { label: "Price", get: (m: Model) => `₹${m.price.toLocaleString("en-IN")}` },
+    {
+      label: "MRP",
+      get: (m: Model) => (m.mrp > m.price ? `₹${m.mrp.toLocaleString("en-IN")}` : "—"),
+    },
     {
       label: "EMI",
-      get: (m) => (m.emiMonthly ? `₹${m.emiMonthly.toLocaleString("en-IN")}/mo` : "—"),
+      get: (m: Model) => (m.emiMonthly ? `₹${m.emiMonthly.toLocaleString("en-IN")}/mo` : "—"),
     },
-    { label: "Range", get: (m) => (m.rangeKm ? `${m.rangeKm} km` : "—") },
-    { label: "Gears", get: (m) => (m.gears ? `${m.gears}-speed` : "—") },
+    { label: "Range", get: (m: Model) => (m.rangeKm ? `${m.rangeKm} km` : "—") },
+    { label: "Gears", get: (m: Model) => (m.gears ? `${m.gears}-speed` : "—") },
+    { label: "Wheel size", get: (m: Model) => m.wheelSize ?? "—" },
+    ...specKeys.map((key) => ({
+      label: key,
+      get: (m: Model) => modelSpecs.get(m.id)?.[key] ?? "—",
+    })),
     { label: "Warranty", get: () => WARRANTY.headline },
-  ];
+  ]
+    // A row where every model reads "—" conveys nothing — e.g. "Gears"
+    // across an all-eBike comparison — and reads as broken rather than
+    // absent, so it's dropped rather than shown.
+    .filter((row) => models.some((m) => row.get(m) !== "—"));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">

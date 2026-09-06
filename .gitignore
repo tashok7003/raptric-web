@@ -47,3 +47,10 @@ next-env.d.ts
 /.claude/
 /.windsurf/
 /skills-lock.json
+
+# playwright-cli scratch output (screenshots/snapshots saved to cwd during manual testing)
+/.playwright-cli/
+/.scratch_shots/
+
+# CMS image uploads (src/lib/actions/upload.ts) — local runtime data, not a source asset
+/public/uploads/

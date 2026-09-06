@@ -38,7 +38,7 @@ export function Accordion({ items, defaultOpenId, className }: AccordionProps) {
             key={item.id}
             id={item.id}
             className={cn(
-              "scroll-mt-20 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white px-3 py-2.5",
+              "scroll-mt-20 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised px-3 py-2.5",
               isOpen && "border-ink",
               isEmpty && "opacity-45",
             )}

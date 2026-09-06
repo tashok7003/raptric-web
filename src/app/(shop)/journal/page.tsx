@@ -28,7 +28,7 @@ export default async function JournalIndexPage() {
             <Link
               key={post.id}
               href={`/journal/${post.slug}`}
-              className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4 hover:border-ink"
+              className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4 hover:border-ink"
             >
               <span className="font-body text-[17px] font-semibold text-ink">
                 {post.title}

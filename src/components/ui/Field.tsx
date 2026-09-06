@@ -33,7 +33,7 @@ export function Field({
     <div className="flex flex-col gap-1">
       <label
         htmlFor={inputId}
-        className="font-body text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-muted"
+        className="font-body text-label uppercase text-ink-muted"
       >
         {label}
       </label>
@@ -43,7 +43,7 @@ export function Field({
         aria-describedby={describedBy}
         readOnly={readOnlyDerived}
         className={cn(
-          "rounded-[6px] border px-3 py-2.5 text-[15px] text-ink bg-white outline-none transition-colors",
+          "rounded-[6px] border px-3 py-2.5 text-[15px] text-ink bg-surface-raised outline-none transition-colors",
           "border-[var(--color-border)] focus:border-ink",
           error && "border-danger text-danger",
           success && "border-success",

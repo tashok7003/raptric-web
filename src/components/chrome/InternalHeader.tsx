@@ -13,7 +13,7 @@ export function InternalHeader({
   links: { href: string; label: string }[];
 }) {
   return (
-    <header className="border-b border-[var(--color-border)] bg-chrome px-4 py-3 text-white">
+    <header className="border-b border-[var(--color-border)] bg-chrome-bg px-4 py-3 text-white">
       <div className="mx-auto flex max-w-6xl items-center gap-6">
         <span className="font-display text-[15px] font-bold">RAPTRIC · {tool}</span>
         <nav className="flex items-center gap-4">

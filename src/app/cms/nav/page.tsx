@@ -11,12 +11,19 @@ export default async function CmsNavPage() {
     <div>
       <h1 className="font-body text-[18px] font-bold text-ink">Navigation</h1>
       <p className="mt-1 text-[13px] text-ink-muted">
-        Capped at 5 items (2a's lock). Empty means the site falls back to
-        the default locked nav — nothing breaks either way.
+        Capped at 5 items. Reorder, rename, or remove anything below,
+        including the original defaults — they&apos;re real rows now, not
+        hardcoded. An empty list falls back to a safe built-in default
+        rather than showing an empty nav.
       </p>
       <div className="mt-4">
         <NavEditor
-          items={items.map((i) => ({ id: i.id, label: i.label, href: i.href }))}
+          items={items.map((i) => ({
+            id: i.id,
+            label: i.label,
+            href: i.href,
+            hasDropdown: i.hasDropdown,
+          }))}
         />
       </div>
     </div>

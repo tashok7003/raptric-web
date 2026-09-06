@@ -1,6 +1,7 @@
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { Accordion } from "@/components/ui/Accordion";
 import { StatusCard } from "@/components/ui/StatusCard";
@@ -9,9 +10,42 @@ import { WARRANTY, whatsappLink } from "@/lib/siteConfig";
 import { computeStockDisplay } from "@/lib/stock";
 import { AddToCartBar } from "@/components/pdp/AddToCartBar";
 import { AddToCartButton } from "@/components/pdp/AddToCartButton";
+import { ProductGallery } from "@/components/pdp/ProductGallery";
 import { ShieldCheck, Truck, PackageCheck, MessageCircle, PlayCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+// Shared with generateMetadata below via React's request-scoped cache —
+// every PDP used to share the root layout's one static <title>/description
+// (verified: /, /bikes/x26, and every other PDP rendered identically) since
+// nothing on this route ever called generateMetadata.
+const getModel = cache((slug: string) =>
+  db.productModel.findUnique({
+    where: { slug },
+    include: {
+      storeStock: { include: { store: true } },
+      reviews: { where: { status: "PUBLISHED" }, take: 5 },
+    },
+  }),
+);
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const model = await getModel(slug);
+  if (!model || model.status !== "LIVE") return {};
+
+  return {
+    title: { absolute: model.metaTitle || `${model.name} — RAPTRIC` },
+    description:
+      model.metaDescription ||
+      model.description ||
+      `${model.name} — no-cost EMI, backed by a ${WARRANTY.headline}.`,
+  };
+}
 
 // PDP, per 2d's fix — sticky anchor strip in AddToCartBar's scroll
 // listener, 3 accordions instead of 5 full sections, and honest
@@ -23,13 +57,7 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const model = await db.productModel.findUnique({
-    where: { slug },
-    include: {
-      storeStock: { include: { store: true } },
-      reviews: { where: { status: "PUBLISHED" }, take: 5 },
-    },
-  });
+  const model = await getModel(slug);
 
   if (!model || model.status !== "LIVE") notFound();
 
@@ -41,6 +69,24 @@ export default async function ProductDetailPage({
     })),
     model.globalStock,
   );
+
+  // These used to be two fixed strings ("Gear-upgrade ready", "4 hr
+  // charge · 30 kg") shown on every eBike regardless of its real specs —
+  // inaccurate for several SKUs. Built from real data only: range plus
+  // whatever an editor has actually entered in the CMS spec editor, never
+  // an assumed value for a model that hasn't been specced yet.
+  let modelSpecs: Record<string, string> = {};
+  try {
+    modelSpecs = JSON.parse(model.specsJson || "{}");
+  } catch {
+    // fall through with empty specs
+  }
+  const whyTiles = [
+    model.rangeKm ? `${model.rangeKm} km per charge` : null,
+    ...Object.entries(modelSpecs).map(([k, v]) => `${k}: ${v}`),
+  ]
+    .filter((t): t is string => Boolean(t))
+    .slice(0, 3);
 
   const compareWith = await db.productModel.findMany({
     where: { kind: model.kind, status: "LIVE", id: { not: model.id } },
@@ -59,18 +105,11 @@ export default async function ProductDetailPage({
       </Link>
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
-        <div className="relative aspect-4/3 overflow-hidden rounded-[var(--radius-card)] bg-surface-sunk">
-          {model.heroImage ? (
-            <Image
-              src={model.heroImage}
-              alt={model.name}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-            />
-          ) : null}
-        </div>
+        <ProductGallery
+          heroImage={model.heroImage}
+          gallery={JSON.parse(model.gallery || "[]")}
+          alt={model.name}
+        />
 
         <div className="flex flex-col gap-3">
           {model.isNew && (
@@ -109,6 +148,10 @@ export default async function ProductDetailPage({
             <div className="font-display text-[24px] font-bold tabular-nums text-ink">
               ₹{model.price.toLocaleString("en-IN")}
             </div>
+          )}
+
+          {model.description && (
+            <p className="text-[14px] text-ink-muted">{model.description}</p>
           )}
 
           <div className="hidden gap-2 md:flex">
@@ -150,15 +193,15 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      {model.kind === "EBIKE" && (
+      {model.kind === "EBIKE" && whyTiles.length > 0 && (
         <section id="why" className="mt-10 scroll-mt-20">
           <h2 className="mb-3 font-body text-[18px] font-bold text-ink">
             Why this bike
           </h2>
           <div className="grid grid-cols-3 gap-3">
-            <WhyTile label={`${model.rangeKm ?? "—"} km per charge`} />
-            <WhyTile label="Gear-upgrade ready" />
-            <WhyTile label="4 hr charge · 30 kg" />
+            {whyTiles.map((label) => (
+              <WhyTile key={label} label={label} />
+            ))}
           </div>
         </section>
       )}
@@ -214,7 +257,7 @@ export default async function ProductDetailPage({
       <section className="mt-8 scroll-mt-20">
         <Link
           href="/support/safety"
-          className="flex items-center gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4 hover:border-ink"
+          className="flex items-center gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4 hover:border-ink"
         >
           <div className="grid size-16 shrink-0 place-items-center rounded-[var(--radius-card)] bg-surface-sunk">
             <PlayCircle className="size-7 text-action" aria-hidden />
@@ -288,7 +331,7 @@ export default async function ProductDetailPage({
 
 function WhyTile({ label }: { label: string }) {
   return (
-    <div className="grid place-items-center rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4 text-center text-[13px] font-medium text-ink">
+    <div className="grid place-items-center rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4 text-center text-[13px] font-medium text-ink">
       {label}
     </div>
   );

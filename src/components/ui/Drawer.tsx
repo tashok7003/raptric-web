@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useFocusTrap } from "@/lib/useFocusTrap";
@@ -18,11 +19,25 @@ interface DrawerProps {
 // drag handle. Scrim ink 40%, fades under reduced-motion. Apple-style
 // spring for the slide-in/out and a draggable dismiss on the mobile sheet,
 // matching iOS sheet behaviour.
+//
+// Portalled to document.body rather than rendered in place: a fixed
+// overlay nested inside an ancestor with backdrop-filter/filter/transform
+// silently gets that ancestor as its containing block instead of the
+// viewport, clipping it to that ancestor's own size (this is exactly how
+// SiteHeader's backdrop-blur header broke the mobile nav drawer). Portalling
+// fixes it once for every consumer instead of requiring each call site to
+// remember to render outside such an ancestor.
 export function Drawer({ open, onClose, title, children, side = "right" }: DrawerProps) {
   const reduceMotion = useReducedMotion();
   const containerRef = useFocusTrap(open, onClose);
 
-  return (
+  // No document on the server — render nothing there rather than crash;
+  // the client's own first render (document always exists in the
+  // browser) is what actually needs to portal, so there's no separate
+  // "wait for mount" tick or hydration mismatch to manage here.
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -86,6 +101,7 @@ export function Drawer({ open, onClose, title, children, side = "right" }: Drawe
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

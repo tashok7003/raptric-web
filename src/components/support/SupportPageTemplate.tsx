@@ -17,7 +17,7 @@ export function SupportPageTemplate({
         {items.map((item) => (
           <li
             key={item}
-            className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3 text-[14px] text-ink"
+            className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3 text-[14px] text-ink"
           >
             {item}
           </li>

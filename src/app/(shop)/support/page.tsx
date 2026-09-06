@@ -10,7 +10,7 @@ export default function SupportIndexPage() {
           <Link
             key={link.href}
             href={link.href}
-            className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4 text-[15px] font-medium text-ink hover:border-ink"
+            className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4 text-[15px] font-medium text-ink hover:border-ink"
           >
             {link.label}
           </Link>

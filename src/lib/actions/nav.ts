@@ -38,3 +38,34 @@ export async function removeNavItemAction(id: string) {
   revalidatePath("/cms/nav");
   revalidatePath("/", "layout");
 }
+
+// Previously the CMS could only append past whatever the locked default
+// (2a) already was — renaming, reordering, or removing one of the
+// original items meant it silently kept living in siteConfig.ts,
+// invisible to the tool that's supposed to own it. The defaults are now
+// seeded as real NavItem rows so they show up here as editable from day
+// one, same as anything an editor adds afterwards.
+export async function updateNavItemAction(id: string, label: string, href: string) {
+  await requireEditor();
+  await db.navItem.update({ where: { id }, data: { label, href } });
+  revalidatePath("/cms/nav");
+  revalidatePath("/", "layout");
+}
+
+export async function moveNavItemAction(id: string, direction: "up" | "down") {
+  await requireEditor();
+  const items = await db.navItem.findMany({ where: { parentId: null }, orderBy: { order: "asc" } });
+  const index = items.findIndex((i) => i.id === id);
+  if (index === -1) return;
+  const swapWith = direction === "up" ? index - 1 : index + 1;
+  if (swapWith < 0 || swapWith >= items.length) return;
+
+  const a = items[index];
+  const b = items[swapWith];
+  await db.$transaction([
+    db.navItem.update({ where: { id: a.id }, data: { order: b.order } }),
+    db.navItem.update({ where: { id: b.id }, data: { order: a.order } }),
+  ]);
+  revalidatePath("/cms/nav");
+  revalidatePath("/", "layout");
+}

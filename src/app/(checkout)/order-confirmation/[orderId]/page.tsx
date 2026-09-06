@@ -30,7 +30,7 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 text-center">
-      <span className="text-[13px] font-semibold uppercase tracking-[0.08em] text-success">
+      <span className="text-label uppercase text-success">
         {cancelled ? order.status.charAt(0) + order.status.slice(1).toLowerCase() : "Order confirmed"}
       </span>
       <h1 className="mt-2 font-display text-[26px] font-bold text-ink">
@@ -42,7 +42,7 @@ export default async function OrderConfirmationPage({
         </p>
       )}
 
-      <div className="mt-6 flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4 text-left">
+      <div className="mt-6 flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4 text-left">
         {order.items.map((item) => (
           <div key={item.id} className="flex justify-between text-[14px]">
             <span>

@@ -183,6 +183,9 @@ model ProductModel {
   specsJson       String      @default("{}")
   heroImage       String?
   gallery         String      @default("[]")
+  description     String? // PDP body copy — separate from specsJson's key/value facts
+  metaTitle       String?
+  metaDescription String?
   globalStock     Int         @default(0) // network tier
   status          String      @default("DRAFT") // DRAFT, LIVE, ARCHIVED
   publishedAt     DateTime?
@@ -465,6 +468,27 @@ model JournalPost {
   createdAt             DateTime  @default(now())
 }
 
+// ---------- Homepage section builder ----------
+
+// Type-specific fields all live in configJson rather than as more nullable
+// columns — HERO's secondary CTA, STAT_BAR's item list, and PRODUCT_GRID's
+// kind/limit filter are each shaped differently, and the section types
+// list is expected to grow (see HOME_SECTION_TYPES in src/lib/homeSections.ts).
+model HomeSection {
+  id         String    @id @default(cuid())
+  type       String // HERO | STAT_BAR | PRODUCT_GRID | PROMO
+  order      Int       @default(0)
+  status     String    @default("LIVE") // DRAFT, LIVE
+  heading    String?
+  body       String?
+  imageUrl   String?
+  ctaLabel   String?
+  ctaHref    String?
+  configJson String    @default("{}")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
 model FaqItem {
   id       String @id @default(cuid())
   question String
@@ -483,11 +507,16 @@ model FaqSearchLog {
 }
 
 model NavItem {
-  id       String  @id @default(cuid())
-  label    String
-  href     String
-  order    Int
-  parentId String?
+  id          String  @id @default(cuid())
+  label       String
+  href        String
+  order       Int
+  parentId    String?
+  // Whether this shows the Shop/Support-style dropdown submenu. Which
+  // dropdown content it gets is still matched by label ("Shop"/"Support")
+  // in SiteHeader — renaming one of those two away from its exact default
+  // label drops its submenu even with this flag still true.
+  hasDropdown Boolean @default(false)
 }
 
 model MediaAsset {

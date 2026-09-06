@@ -6,12 +6,15 @@
  * this file is the launch-time default / fallback.
  */
 
+// "Journal" dropped from the default nav — the review panel flagged a
+// live top-level nav item pointing at zero published posts as a dead
+// promise on every visitor's first screen. /journal and /cms/journal
+// both still work; re-add here once there's real content behind it.
 export const NAV_ITEMS = [
   { label: "Shop", href: "/bikes", hasDropdown: true },
   { label: "Why RAPTRIC", href: "/why-raptric", hasDropdown: false },
   { label: "Find a Store", href: "/stores", hasDropdown: false },
   { label: "Support", href: "/support", hasDropdown: true },
-  { label: "Journal", href: "/journal", hasDropdown: false },
 ] as const;
 
 export const SHOP_DROPDOWN = [
@@ -54,7 +57,6 @@ export const FOOTER_COLUMNS = [
     heading: "Company",
     links: [
       { label: "Why RAPTRIC", href: "/why-raptric" },
-      { label: "Journal", href: "/journal" },
       { label: "Reviews", href: "/reviews" },
       { label: "Become a retailer", href: "/retailers" },
       { label: "Contact", href: "/support/contact" },

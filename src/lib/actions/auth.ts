@@ -12,6 +12,20 @@ function generateCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
+/** Every seeded/stored phone is E.164 (+91XXXXXXXXXX), but the sign-in
+ * form accepts whatever a rider types — a bare 10-digit number matching
+ * the seeded admin's own phone was silently creating a second, distinct
+ * RIDER account instead of matching it. India-only for now, matching the
+ * DLT templates and Bajaj EMI integration, which are India-specific. */
+function normalizePhone(raw: string): string {
+  const kept = raw.replace(/[^\d+]/g, "");
+  if (kept.startsWith("+")) return kept;
+  const bare = kept.replace(/^0+/, "");
+  if (bare.length === 12 && bare.startsWith("91")) return `+${bare}`;
+  if (bare.length === 10) return `+91${bare}`;
+  return `+${bare}`;
+}
+
 export interface RequestOtpResult {
   ok: boolean;
   error?: "TOO_MANY_REQUESTS";
@@ -20,7 +34,8 @@ export interface RequestOtpResult {
 
 // 3b — one door for new and returning riders; 9e's OTP failure states
 // start here (too-many-requests) and continue in verifyOtpAction.
-export async function requestOtpAction(phone: string): Promise<RequestOtpResult> {
+export async function requestOtpAction(rawPhone: string): Promise<RequestOtpResult> {
+  const phone = normalizePhone(rawPhone);
   const recent = await db.otpCode.findFirst({
     where: { phone, createdAt: { gt: new Date(Date.now() - RESEND_COOLDOWN_SECONDS * 1000) } },
     orderBy: { createdAt: "desc" },
@@ -50,7 +65,8 @@ export interface VerifyOtpResult {
   attemptsLeft?: number;
 }
 
-export async function verifyOtpAction(phone: string, code: string): Promise<VerifyOtpResult> {
+export async function verifyOtpAction(rawPhone: string, code: string): Promise<VerifyOtpResult> {
+  const phone = normalizePhone(rawPhone);
   const otp = await db.otpCode.findFirst({
     where: { phone, consumedAt: null },
     orderBy: { createdAt: "desc" },

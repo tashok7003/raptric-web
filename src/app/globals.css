@@ -12,6 +12,10 @@
   --color-ink-muted: #5c574e;
   --color-surface: #faf9f6;
   --color-surface-sunk: #f0eee9;
+  /* The "card floating on the page" surface — components used a literal
+     bg-white for this instead, which stayed white in dark mode while
+     text-ink flipped light, making every card's text unreadable. */
+  --color-surface-raised: #ffffff;
   /* RAPTRIC's real brand green, pulled from raptric.in's own CSS
      (#00a652 is their dominant brand swatch — 298 occurrences — used
      for large surfaces/icons/accents there). That exact shade measures
@@ -79,6 +83,7 @@
   --color-ink-muted: var(--color-ink-muted);
   --color-surface: var(--color-surface);
   --color-surface-sunk: var(--color-surface-sunk);
+  --color-surface-raised: var(--color-surface-raised);
   --color-brand-accent: var(--color-brand-accent);
   --color-action: var(--color-action);
   --color-action-hover: var(--color-action-hover);
@@ -135,22 +140,44 @@
   :root:not([data-theme="light"]) {
     --color-surface: #161512;
     --color-surface-sunk: #1f1e1a;
+    --color-surface-raised: #211f1a;
     --color-ink: #f2f0ea;
     --color-ink-muted: #b8b2a6;
     --color-border: #38352e;
     --background: var(--color-surface);
     --foreground: var(--color-ink);
+    /* StatusCard's title always renders in --color-ink (now near-white)
+       regardless of tone — these four *-bg/*-border pairs stayed at their
+       light, near-white values in dark mode, so every tone (not just
+       info) rendered near-white text on a near-white card. */
+    --color-success-bg: #122a1e;
+    --color-success-border: #2e5a3f;
+    --color-caution-bg: #2a2013;
+    --color-caution-border: #5c4720;
+    --color-danger-bg: #2a1512;
+    --color-danger-border: #5c2b24;
+    --color-info-bg: #201f1c;
+    --color-info-border: #3c3a35;
   }
 }
 
 :root[data-theme="dark"] {
   --color-surface: #161512;
   --color-surface-sunk: #1f1e1a;
+  --color-surface-raised: #211f1a;
   --color-ink: #f2f0ea;
   --color-ink-muted: #b8b2a6;
   --color-border: #38352e;
   --background: var(--color-surface);
   --foreground: var(--color-ink);
+  --color-success-bg: #122a1e;
+  --color-success-border: #2e5a3f;
+  --color-caution-bg: #2a2013;
+  --color-caution-border: #5c4720;
+  --color-danger-bg: #2a1512;
+  --color-danger-border: #5c2b24;
+  --color-info-bg: #201f1c;
+  --color-info-border: #3c3a35;
 }
 
 * {
@@ -158,6 +185,10 @@
 }
 
 body {
+  /* Set by ConsentBanner while visible — reserves scroll room so a fixed
+     bottom banner never permanently traps in-flow content underneath it
+     on a page short enough to fit in one screen. */
+  padding-bottom: var(--consent-banner-space, 0px);
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);

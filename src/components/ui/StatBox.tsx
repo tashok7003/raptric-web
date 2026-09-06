@@ -13,7 +13,7 @@ export function StatBox({ items, className }: StatBoxProps) {
       {items.slice(0, 4).map((item, i) => (
         <div
           key={i}
-          className="flex flex-col items-center justify-center gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white px-2 py-3 text-center"
+          className="flex flex-col items-center justify-center gap-1 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised px-2 py-3 text-center"
         >
           {item.icon}
           <span className="font-body text-[13px] font-semibold text-ink">

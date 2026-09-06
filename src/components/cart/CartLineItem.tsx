@@ -35,7 +35,7 @@ export function CartLineItem({
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3">
+    <div className="flex items-center gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-[6px] bg-surface-sunk">
         {image ? (
           <Image src={image} alt={name} fill sizes="64px" className="object-cover" />

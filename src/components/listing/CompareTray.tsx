@@ -1,19 +1,40 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCompareIds } from "@/lib/compareTray";
+import { useCompareIds, pruneCompareIds } from "@/lib/compareTray";
+import { getCompareModelsAction } from "@/lib/actions/compare";
 import { springSheet, useReducedMotion } from "@/lib/motion";
+import { useRegisterBottomBar } from "@/lib/stickyBar";
 
-interface CompareTrayProps {
-  names: Record<string, string>; // id -> display name, for the ones known on this page
-}
-
-// 1e/2a — floating tray, never nav-level. Shows across the listing and
-// PDP so a shopper can build a 2-3 model comparison as they browse.
-export function CompareTray({ names }: CompareTrayProps) {
+// 1e/2a — floating tray, never nav-level, and the single compare
+// affordance (a duplicate header "Compare (N)" pill used to sit alongside
+// it, saying the same thing twice for the same action).
+//
+// Names are looked up here rather than passed in from the host page —
+// this used to take an id->name map built from whatever products that
+// specific page happened to have loaded, so switching the type/budget
+// filter (or a selection surviving past a product being deleted or
+// recreated with a new id) rendered raw database ids with no name.
+export function CompareTray() {
   const ids = useCompareIds();
   const reduceMotion = useReducedMotion();
+  const [names, setNames] = useState<Record<string, string>>({});
+  useRegisterBottomBar(ids.length > 0);
+
+  useEffect(() => {
+    if (ids.length === 0) return;
+    let cancelled = false;
+    getCompareModelsAction(ids).then((models) => {
+      if (cancelled) return;
+      setNames(Object.fromEntries(models.map((m) => [m.id, m.name])));
+      pruneCompareIds(models.map((m) => m.id));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ids]);
 
   return (
     <AnimatePresence>
@@ -27,7 +48,7 @@ export function CompareTray({ names }: CompareTrayProps) {
         >
           <div className="mx-auto flex max-w-6xl items-center gap-3">
             <span className="text-[13px] text-ink-muted">
-              Comparing: {ids.map((id) => names[id] ?? id).join(" · ")}
+              Comparing: {ids.map((id) => names[id]).filter(Boolean).join(" · ") || "…"}
             </span>
             <Link
               href={`/compare?ids=${ids.join(",")}`}

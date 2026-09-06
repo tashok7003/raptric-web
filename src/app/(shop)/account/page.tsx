@@ -1,12 +1,19 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import { WARRANTY } from "@/lib/siteConfig";
 
 export default async function YourBikePage() {
   const user = await getCurrentUser();
+  // AccountLayout already redirects when signed out, but it reads the
+  // session in a separate query — if a session is revoked between that
+  // check and this one (e.g. sign-out firing mid-navigation), this page
+  // must not crash on the resulting null.
+  if (!user) redirect("/sign-in");
+
   const bikes = await db.ownedBike.findMany({
-    where: { userId: user!.id },
+    where: { userId: user.id },
     include: { model: true },
     orderBy: { purchaseDate: "desc" },
   });
@@ -34,7 +41,7 @@ export default async function YourBikePage() {
       {bikes.map((bike) => (
         <div
           key={bike.id}
-          className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4"
+          className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4"
         >
           <div className="flex items-center gap-3">
             <div className="size-14 shrink-0 rounded-[6px] bg-surface-sunk" />

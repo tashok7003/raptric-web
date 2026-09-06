@@ -32,7 +32,7 @@ export default async function JournalArticlePage({
       </div>
 
       {callout && (
-        <div className="mt-6 flex items-center gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-4">
+        <div className="mt-6 flex items-center gap-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-4">
           <div className="size-16 shrink-0 rounded-[6px] bg-surface-sunk" />
           <div className="flex-1">
             <span className="font-body text-[14px] font-semibold text-ink">

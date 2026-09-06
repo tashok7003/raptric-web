@@ -1,16 +1,18 @@
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import { PrivacyActions } from "@/components/account/PrivacyActions";
 
 export default async function PrivacyPage() {
   const user = await getCurrentUser();
+  if (!user) redirect("/sign-in");
   const consents = await db.consentRecord.findMany({
-    where: { userId: user!.id },
+    where: { userId: user.id },
     orderBy: { createdAt: "desc" },
   });
   const pendingRequests = await db.auditLog.findMany({
     where: {
-      userId: user!.id,
+      userId: user.id,
       action: { in: ["data_export_requested", "data_deletion_requested"] },
     },
     orderBy: { createdAt: "desc" },

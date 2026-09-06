@@ -19,7 +19,7 @@ export default function RetailersPage() {
           (term) => (
             <div
               key={term}
-              className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-white p-3 text-center font-medium text-ink"
+              className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-surface-raised p-3 text-center font-medium text-ink"
             >
               {term}
             </div>

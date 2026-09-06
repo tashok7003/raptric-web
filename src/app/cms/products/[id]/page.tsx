@@ -30,6 +30,12 @@ export default async function EditProductPage({
             bestSeller: product.bestSeller,
             isNew: product.isNew,
             globalStock: product.globalStock,
+            heroImage: product.heroImage ?? undefined,
+            gallery: JSON.parse(product.gallery || "[]"),
+            specs: JSON.parse(product.specsJson || "{}"),
+            description: product.description ?? undefined,
+            metaTitle: product.metaTitle ?? undefined,
+            metaDescription: product.metaDescription ?? undefined,
           }}
         />
       </div>

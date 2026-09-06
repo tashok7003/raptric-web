@@ -51,3 +51,86 @@ export async function setRetailerStatusAction(
   await db.retailer.update({ where: { id: retailerId }, data: { status } });
   revalidatePath("/ops/retailers");
 }
+
+// ---------- Retailer self-service (/account/retailer) ----------
+
+async function requireRetailer() {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "RETAILER" || !user.retailerId) {
+    throw new Error("Not authorized");
+  }
+  return { ...user, retailerId: user.retailerId };
+}
+
+function slugify(name: string) {
+  return (
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || "store"
+  );
+}
+
+// Ops still owns approval/fulfillment (visible in /ops/retailers and
+// /ops/orders) — this only lets a retailer put a new request in the
+// queue from a past order, instead of the phone/WhatsApp round-trip
+// the retailer review found every partner still relies on.
+export async function reorderWholesaleOrderAction(orderId: string) {
+  const user = await requireRetailer();
+  const original = await db.wholesaleOrder.findUnique({ where: { id: orderId } });
+  if (!original || original.retailerId !== user.retailerId) {
+    throw new Error("Order not found");
+  }
+
+  await db.wholesaleOrder.create({
+    data: {
+      retailerId: user.retailerId,
+      modelId: original.modelId,
+      quantity: original.quantity,
+      consignment: original.consignment,
+      status: "PENDING",
+    },
+  });
+
+  revalidatePath("/account/retailer");
+}
+
+export interface RetailerStoreInput {
+  name: string;
+  address: string;
+  city: string;
+  pincode: string;
+  phone: string;
+  hours: string;
+}
+
+export async function saveRetailerStoreAction(storeId: string | null, input: RetailerStoreInput) {
+  const user = await requireRetailer();
+  const data = {
+    name: input.name,
+    address: input.address,
+    city: input.city,
+    pincode: input.pincode,
+    phone: input.phone,
+    hoursJson: JSON.stringify({ "mon-sun": input.hours }),
+  };
+
+  if (storeId) {
+    const existing = await db.store.findUnique({ where: { id: storeId } });
+    if (!existing || existing.retailerId !== user.retailerId) {
+      throw new Error("Store not found");
+    }
+    await db.store.update({ where: { id: storeId }, data });
+  } else {
+    await db.store.create({
+      data: {
+        ...data,
+        retailerId: user.retailerId,
+        slug: `${slugify(input.name)}-${user.retailerId.slice(-6)}`,
+      },
+    });
+  }
+
+  revalidatePath("/account/retailer");
+}

@@ -27,6 +27,12 @@ export interface ProductFormInput {
   bestSeller: boolean;
   isNew: boolean;
   globalStock: number;
+  heroImage?: string;
+  gallery?: string[];
+  specs?: Record<string, string>;
+  description?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 // 1o/4h — the CMS product editor with a stock toggle (globalStock),
@@ -36,17 +42,19 @@ export interface ProductFormInput {
 export async function saveProductAction(id: string | null, input: ProductFormInput) {
   await requireEditor();
 
+  const { gallery, specs, ...rest } = input;
   const emiMonthly = input.price >= 20000 ? Math.round(input.price / input.emiTenureMonths) : null;
+  const data = {
+    ...rest,
+    emiMonthly,
+    gallery: JSON.stringify(gallery ?? []),
+    specsJson: JSON.stringify(specs ?? {}),
+  };
 
   if (id) {
-    await db.productModel.update({
-      where: { id },
-      data: { ...input, emiMonthly },
-    });
+    await db.productModel.update({ where: { id }, data });
   } else {
-    await db.productModel.create({
-      data: { ...input, emiMonthly, status: "DRAFT" },
-    });
+    await db.productModel.create({ data: { ...data, status: "DRAFT" } });
   }
 
   revalidatePath("/cms/products");
